@@ -29,6 +29,7 @@ export async function setupCamera(holistic) {
 let lastAlertTime = 0;
 const MIN_ALERT_INTERVAL = 3000;
 let alertsCount = 0;
+let lastInterval = null;
 
 export function onResults(results) {
   if (!results.faceLandmarks || (!results.rightHandLandmarks && !results.leftHandLandmarks)) return;
@@ -46,7 +47,16 @@ export function onResults(results) {
         alertSound.play();
         lastAlertTime = Date.now();
         alertsCount++;
-        counts.innerText = `Alerts: ${alertsCount}`;
+        counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${Math.round((Date.now() - lastAlertTime) / 60000)} min`;
+
+        if (lastInterval) {
+          clearInterval(lastInterval);
+        }
+
+        lastInterval = setInterval(() => {
+          counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${Math.round((Date.now() - lastAlertTime) / 60000)} min`;
+        }, 60000);
+        
         return;
       }
     }
