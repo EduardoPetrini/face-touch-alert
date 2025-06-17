@@ -9,7 +9,7 @@ const mediapipeVersion = '0.5.1675471629'; // Known stable version
 script.src = `https://cdn.jsdelivr.net/npm/@mediapipe/holistic@${mediapipeVersion}/holistic.js`;
 script.onload = () => {
   const holistic = new window.Holistic({
-    locateFile: file => `/assets/${file}`,
+    locateFile: file => `/assets/holistic/${file}`,
   });
 
   holistic.setOptions({
