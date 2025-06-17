@@ -1,3 +1,4 @@
+import { updateChartFromTimestamps } from './chart.js';
 import { getArray, getInt, setArray, setInt } from './storage.js';
 
 const videoElement = document.getElementById('video');
@@ -44,6 +45,8 @@ let currentDuration = getInt('currentDuration') || 0;
 let lastDuration = getInt('lastDuration') || 0;
 const alertsList = getArray('alertsList') || [];
 
+updateChartFromTimestamps(alertsList);
+
 if (alertsCount > 0) {
   counts.innerText = getAlertMessage(alertsCount, lastAlertTime, currentDuration, lastDuration);
 }
@@ -75,6 +78,8 @@ export function onResults(results) {
         setInt('lastDuration', lastDuration);
         setInt('currentDuration', currentDuration);
         setArray('alertsList', alertsList);
+
+        updateChartFromTimestamps(alertsList);
 
         if (lastInterval) {
           clearInterval(lastInterval);

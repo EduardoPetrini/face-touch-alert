@@ -41,8 +41,13 @@
     <video id="video" autoplay muted playsinline></video>
     <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
     <div id="counts">Alerts: 0</div>
+    <div id="chartContainer" style="width: 600px; height: 400px; margin-top: 20px">
+      <canvas id="alertChart" width="400" height="200"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="assets/storage.js"></script>
     <script type="module" src="assets/functions.js"></script>
     <script type="module" src="assets/main.js"></script>
+    <script type="module" src="assets/chart.js"></script>
   </body>
 </html>
