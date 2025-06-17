@@ -1,0 +1,43 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#FF4444" stroke="#CC0000" stroke-width="2"/>
+  
+  <!-- Face outline -->
+  <ellipse cx="16" cy="14" rx="8" ry="9" fill="#FFE4B5" stroke="#D4A574" stroke-width="1"/>
+  
+  <!-- Eyes -->
+  <circle cx="13" cy="12" r="1.8" fill="#333"/>
+  <circle cx="19" cy="12" r="1.8" fill="#333"/>
+  <!-- Eye highlights -->
+  <circle cx="13.5" cy="11.5" r="0.5" fill="#FFF"/>
+  <circle cx="19.5" cy="11.5" r="0.5" fill="#FFF"/>
+  
+  <!-- Nose -->
+  <ellipse cx="16" cy="14.5" rx="0.8" ry="1" fill="#D4A574"/>
+  
+  <!-- Mouth - happy smile -->
+  <path d="M13 17 Q16 19 19 17" stroke="#333" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+  
+  <!-- Hand/Stop gesture (blocking) -->
+  <g transform="translate(8, 20)">
+    <!-- Palm -->
+    <rect x="0" y="0" width="5" height="7" rx="2" fill="#F4C2A1" stroke="#D4A574" stroke-width="0.5"/>
+    <!-- Fingers -->
+    <rect x="0" y="-2" width="1" height="3" rx="0.5" fill="#F4C2A1" stroke="#D4A574" stroke-width="0.3"/>
+    <rect x="1.2" y="-3" width="1" height="4" rx="0.5" fill="#F4C2A1" stroke="#D4A574" stroke-width="0.3"/>
+    <rect x="2.4" y="-2.5" width="1" height="3.5" rx="0.5" fill="#F4C2A1" stroke="#D4A574" stroke-width="0.3"/>
+    <rect x="3.6" y="-1.5" width="1" height="2.5" rx="0.5" fill="#F4C2A1" stroke="#D4A574" stroke-width="0.3"/>
+  </g>
+  
+  <!-- Alert/Warning lines -->
+  <g stroke="#FFFF00" stroke-width="1.5" opacity="0.8">
+    <line x1="4" y1="8" x2="6" y2="6"/>
+    <line x1="28" y1="8" x2="26" y2="6"/>
+    <line x1="4" y1="24" x2="6" y2="26"/>
+    <line x1="28" y1="24" x2="26" y2="26"/>
+  </g>
+  
+  <!-- Camera dot (top right) -->
+  <circle cx="25" cy="7" r="2" fill="#333" opacity="0.7"/>
+  <circle cx="25" cy="7" r="1" fill="#4CAF50"/>
+</svg>
