@@ -1,6 +1,7 @@
 const videoElement = document.getElementById('video');
 const alertSound = document.getElementById('alertSound');
 const loading = document.getElementById('loading');
+const counts = document.getElementById('counts');
 
 const script = document.createElement('script');
 script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js';
@@ -46,6 +47,7 @@ script.onload = () => {
 
   let lastAlertTime = 0;
   const MIN_ALERT_INTERVAL = 3000;
+  let alertsCount = 0;
 
   function onResults(results) {
     if (!results.faceLandmarks || (!results.rightHandLandmarks && !results.leftHandLandmarks)) return;
@@ -62,6 +64,9 @@ script.onload = () => {
         if (distance < 0.03 && Date.now() - lastAlertTime > MIN_ALERT_INTERVAL) {
           alertSound.play();
           lastAlertTime = Date.now();
+          alertsCount++;
+          counts.innerText = `Alerts: ${alertsCount}`;
+          console.log(`Setting alerts count to ${alertsCount}`);
           return;
         }
       }
