@@ -1,3 +1,5 @@
+import { getArray, getInt, setArray, setInt } from './storage.js';
+
 const videoElement = document.getElementById('video');
 const alertSound = document.getElementById('alertSound');
 const loading = document.getElementById('loading');
@@ -26,10 +28,16 @@ export async function setupCamera(holistic) {
   }
 }
 
-let lastAlertTime = 0;
+let lastAlertTime = getInt('lastAlertTime') || 0;
 const MIN_ALERT_INTERVAL = 3000;
-let alertsCount = 0;
+let alertsCount = getInt('alertsCount') || 0;
 let lastInterval = null;
+let lastDuration = getInt('lastDuration') || 0;
+const alertsList = getArray('alertsList') || [];
+
+if (alertsCount > 0) {
+  counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${lastDuration} min`;
+}
 
 export function onResults(results) {
   if (!results.faceLandmarks || (!results.rightHandLandmarks && !results.leftHandLandmarks)) return;
@@ -45,18 +53,32 @@ export function onResults(results) {
 
       if (distance < 0.03 && Date.now() - lastAlertTime > MIN_ALERT_INTERVAL) {
         alertSound.play();
+        lastDuration = lastAlertTime === 0 ? lastAlertTime : Math.round((Date.now() - lastAlertTime) / 60000);
+
+        loading.style.display = 'block';
+
         lastAlertTime = Date.now();
+        alertsList.push(lastAlertTime);
         alertsCount++;
-        counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${Math.round((Date.now() - lastAlertTime) / 60000)} min`;
+        let currentDuration = Math.round((Date.now() - lastAlertTime) / 60000);
+        counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${currentDuration} (was: ${lastDuration}) min`;
 
         if (lastInterval) {
           clearInterval(lastInterval);
         }
 
+        setInt('lastAlertTime', lastAlertTime);
+        setInt('alertsCount', alertsCount);
+        setInt('lastDuration', lastDuration);
+        setInt('currentDuration', currentDuration);
+        setArray('alertsList', alertsList);
+
         lastInterval = setInterval(() => {
-          counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${Math.round((Date.now() - lastAlertTime) / 60000)} min`;
-        }, 60000);
-        
+          currentDuration = Math.round((Date.now() - lastAlertTime) / 60000);
+          setInt('currentDuration', currentDuration);
+          counts.innerText = `Alerts: ${alertsCount} - Latest at ${new Date(lastAlertTime).toLocaleTimeString()} - Duration: ${currentDuration} (was: ${lastDuration}) min`;
+        }, 10000);
+
         return;
       }
     }
