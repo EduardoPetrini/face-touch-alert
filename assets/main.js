@@ -4,10 +4,12 @@ const loading = document.getElementById('loading');
 const counts = document.getElementById('counts');
 
 const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js';
+const mediapipeVersion = '0.5.1675471629'; // Known stable version
+
+script.src = `https://cdn.jsdelivr.net/npm/@mediapipe/holistic@${mediapipeVersion}/holistic.js`;
 script.onload = () => {
   const holistic = new window.Holistic({
-    locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`,
+    locateFile: file => `/assets/${file}`,
   });
 
   holistic.setOptions({
@@ -28,7 +30,6 @@ script.onload = () => {
 
       videoElement.onloadedmetadata = () => {
         videoElement.play();
-        loading.style.display = 'none';
         startDetectionLoop();
       };
     } catch (err) {
@@ -39,7 +40,7 @@ script.onload = () => {
 
   function startDetectionLoop() {
     setInterval(() => {
-      holistic.send({ image: videoElement });
+        holistic.send({ image: videoElement });
     }, 300);
   }
 
@@ -66,7 +67,6 @@ script.onload = () => {
           lastAlertTime = Date.now();
           alertsCount++;
           counts.innerText = `Alerts: ${alertsCount}`;
-          console.log(`Setting alerts count to ${alertsCount}`);
           return;
         }
       }
