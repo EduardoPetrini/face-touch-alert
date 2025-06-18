@@ -35,7 +35,7 @@ const chart = new Chart(ctx, {
   },
 });
 
-function getLabelsForLast24Hours() {
+export function getLabelsForLast24Hours() {
   const now = new Date();
   return Array.from({ length: 24 }, (_, i) => {
     const hour = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000);
@@ -52,7 +52,7 @@ export function updateChartFromTimestamps(timestamps) {
   timestamps
     .filter(ts => ts > oneDayAgo)
     .forEach(ts => {
-      const hoursAgo = Math.round((now - ts) / (60 * 60 * 1000));
+      const hoursAgo = Math.floor((now - ts) / (60 * 60 * 1000));
       if (hoursAgo >= 0 && hoursAgo < 24) {
         const bucket = 23 - hoursAgo;
         hourlyCounts[bucket]++;
@@ -62,4 +62,6 @@ export function updateChartFromTimestamps(timestamps) {
   chart.data.labels = getLabelsForLast24Hours();
   chart.data.datasets[0].data = hourlyCounts;
   chart.update();
+
+  return hourlyCounts
 }
