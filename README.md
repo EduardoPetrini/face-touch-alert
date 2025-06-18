@@ -308,3 +308,8 @@ This application is designed as a behavioral awareness tool and is not intended 
 **Made with ❤️ for mental health awareness and habit modification**
 
 *"Building consciousness around unconscious behaviors, one alert at a time."*
+
+## TODO
+- [ ] Options to reset the saved data
+- [ ] Turn on/off the sound
+- [ ] Double-check the responsiveness of the UI
