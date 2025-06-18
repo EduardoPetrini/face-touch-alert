@@ -1,0 +1,19 @@
+{
+  "name": "face-touch-alert",
+  "version": "1.0.0",
+  "description": "A real-time web application that helps users build awareness of unconscious face-touching behaviors through computer vision and instant audio alerts. Perfect for individuals managing anxiety-related habits, skin picking disorders, nail biting, or general face touching patterns that interfere with skincare, hygiene, or focus.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jasmine": "^5.8.0"
+  },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  }
+}
