@@ -2,7 +2,7 @@ const ctx = document.getElementById('alertChart').getContext('2d');
 const chart = new Chart(ctx, {
   type: 'bar',
   data: {
-    labels: [...Array(24).keys()].map(h => `${h}:00`),
+    labels: getLabelsForLast24Hours(),
     datasets: [
       {
         label: 'Face Touch Alerts',
@@ -35,17 +35,31 @@ const chart = new Chart(ctx, {
   },
 });
 
+function getLabelsForLast24Hours() {
+  const now = new Date();
+  return Array.from({ length: 24 }, (_, i) => {
+    const hour = new Date(now.getTime() - (23 - i) * 60 * 60 * 1000);
+    return `${hour.getHours()}:00`;
+  });
+}
+
 export function updateChartFromTimestamps(timestamps) {
   const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
   const hourlyCounts = Array(24).fill(0);
 
+  const now = new Date();
+
   timestamps
     .filter(ts => ts > oneDayAgo)
     .forEach(ts => {
-      const hour = new Date(ts).getHours();
-      hourlyCounts[hour]++;
+      const hoursAgo = Math.round((now - ts) / (60 * 60 * 1000));
+      if (hoursAgo >= 0 && hoursAgo < 24) {
+        const bucket = 23 - hoursAgo;
+        hourlyCounts[bucket]++;
+      }
     });
 
+  chart.data.labels = getLabelsForLast24Hours();
   chart.data.datasets[0].data = hourlyCounts;
   chart.update();
 }
