@@ -27,7 +27,7 @@ const chart = new Chart(ctx, {
       legend: false,
       tooltip: {
         callbacks: {
-          label: context => `${context.raw > 0 ? 'Touches: ' + context.raw : 'Touch: ' + context.raw}`,
+          label: context => `${context.raw > 1 ? 'Touches: ' + context.raw : 'Touch: ' + context.raw}`,
         },
       },
     },
