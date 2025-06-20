@@ -313,3 +313,7 @@ This application is designed as a behavioral awareness tool and is not intended 
 - [ ] Options to reset the saved data
 - [ ] Turn on/off the sound
 - [ ] Double-check the responsiveness of the UI
+- [ ] Update the chart every minute to keep up with the current time
+- [ ] Add Average per hour in the chart
+- [ ] Add last seven days chart
+- [ ] Add average per day in the chart
