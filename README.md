@@ -317,3 +317,4 @@ This application is designed as a behavioral awareness tool and is not intended 
 - [ ] Add Average per hour in the chart
 - [ ] Add last seven days chart
 - [ ] Add average per day in the chart
+- [ ] Give the user the option to pause it for a specific time
