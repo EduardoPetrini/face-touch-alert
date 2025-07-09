@@ -9,7 +9,7 @@ const counts = document.getElementById('counts');
 export function startDetectionLoop(holistic) {
   setInterval(() => {
     holistic.send({ image: videoElement });
-  }, 300);
+  }, 600);
 }
 
 export async function setupCamera(holistic) {
@@ -46,12 +46,17 @@ let lastDuration = getInt('lastDuration') || 0;
 const alertsList = getArray('alertsList') || [];
 
 updateChartFromTimestamps(alertsList);
+currentDuration = getDuration(lastAlertTime);
+counts.innerText = getAlertMessage(alertsCount, lastAlertTime, currentDuration, lastDuration);
 
 if (alertsCount > 0) {
   counts.innerText = getAlertMessage(alertsCount, lastAlertTime, currentDuration, lastDuration);
 }
 
 export function onResults(results) {
+  const isPaused = getInt('isPaused') || 0;
+  if (isPaused) return;
+
   if (!results.faceLandmarks || (!results.rightHandLandmarks && !results.leftHandLandmarks)) return;
 
   const facePoints = results.faceLandmarks;

@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/png" href="assets/favicon.png" />
     <title>Face Touch Alert</title>
+    <script src="https://unpkg.com/feather-icons"></script>
     <style>
       body {
         margin: 0;
@@ -33,6 +34,24 @@
         font-size: 24px;
         margin-top: 10px;
       }
+      #controls button {
+        background: #222;
+        border: none;
+        border-radius: 8px;
+        padding: 10px;
+        color: white;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      #controls button:hover {
+        background: #333;
+      }
+
+      #controls i {
+        width: 24px;
+        height: 24px;
+      }
     </style>
   </head>
   <body>
@@ -41,11 +60,22 @@
     <video id="video" autoplay muted playsinline></video>
     <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
     <div id="counts">Alerts: 0</div>
+    <div id="controls" style="margin-top: 20px; display: flex; gap: 16px">
+      <button id="muteBtn" title="Mute"><i data-feather="volume-x"></i></button>
+      <button id="pauseBtn" title="Pause"><i data-feather="pause-circle"></i></button>
+      <button id="volDownBtn" title="Volume Down"><i data-feather="volume-1"></i></button>
+      <button id="volUpBtn" title="Volume Up"><i data-feather="volume-2"></i></button>
+      <button id="changeSoundBtn" title="Change Sound"><i data-feather="music"></i></button>
+    </div>
     <div id="chartContainer" style="width: 600px; height: 400px; margin-top: 20px">
       <canvas id="alertChart" width="400" height="200"></canvas>
     </div>
+    <script>
+      feather.replace();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="module" src="assets/storage.js"></script>
+    <script type="module" src="assets/actions.js"></script>
     <script type="module" src="assets/functions.js"></script>
     <script type="module" src="assets/main.js"></script>
     <script type="module" src="assets/chart.js"></script>
