@@ -23,11 +23,13 @@ const alertSound = document.getElementById('alertSound');
 alertSound.src = ALERT_SOUNDS[getInt('alertSoundIndex') || 0];
 updatePauseButton();
 
+volDownBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
+volUpBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
+
 muteBtn.addEventListener('click', () => {
   const alertSound = document.getElementById('alertSound');
   alertSound.muted = !alertSound.muted;
   muteBtn.title = alertSound.muted ? 'Unmute' : 'Mute';
-  muteBtn.firstChild.setAttribute('data-feather', alertSound.muted ? 'volume-x' : 'volume-2');
   feather.replace();
 });
 
