@@ -26,7 +26,7 @@ script.onload = () => {
 };
 
 script.onerror = () => {
-  loading.textContent = 'Failed to load detection model.';
+  loading.innerHTML = '<div style="color: #ef4444;">❌ Failed to load detection model.</div>';
 };
 
 document.body.appendChild(script);

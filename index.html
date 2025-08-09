@@ -6,70 +6,456 @@
     <link rel="icon" type="image/png" href="assets/favicon.png" />
     <title>Face Touch Alert</title>
     <script src="https://unpkg.com/feather-icons"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      body {
+      :root {
+        /* Modern Color System */
+        --primary-50: #eff6ff;
+        --primary-100: #dbeafe;
+        --primary-200: #bfdbfe;
+        --primary-300: #93c5fd;
+        --primary-400: #60a5fa;
+        --primary-500: #3b82f6;
+        --primary-600: #2563eb;
+        --primary-700: #1d4ed8;
+        --primary-800: #1e40af;
+        --primary-900: #1e3a8a;
+        
+        --success-50: #ecfdf5;
+        --success-100: #d1fae5;
+        --success-200: #a7f3d0;
+        --success-300: #6ee7b7;
+        --success-400: #34d399;
+        --success-500: #10b981;
+        --success-600: #059669;
+        --success-700: #047857;
+        --success-800: #065f46;
+        --success-900: #064e3b;
+        
+        --warning-50: #fffbeb;
+        --warning-100: #fef3c7;
+        --warning-200: #fde68a;
+        --warning-300: #fcd34d;
+        --warning-400: #fbbf24;
+        --warning-500: #f59e0b;
+        --warning-600: #d97706;
+        --warning-700: #b45309;
+        --warning-800: #92400e;
+        --warning-900: #78350f;
+        
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-400: #9ca3af;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --gray-800: #1f2937;
+        --gray-900: #111827;
+        
+        /* Spacing System */
+        --space-1: 0.25rem;
+        --space-2: 0.5rem;
+        --space-3: 0.75rem;
+        --space-4: 1rem;
+        --space-5: 1.25rem;
+        --space-6: 1.5rem;
+        --space-8: 2rem;
+        --space-10: 2.5rem;
+        --space-12: 3rem;
+        --space-16: 4rem;
+        --space-20: 5rem;
+        
+        /* Typography */
+        --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        --font-size-xs: 0.75rem;
+        --font-size-sm: 0.875rem;
+        --font-size-base: 1rem;
+        --font-size-lg: 1.125rem;
+        --font-size-xl: 1.25rem;
+        --font-size-2xl: 1.5rem;
+        --font-size-3xl: 1.875rem;
+        --font-size-4xl: 2.25rem;
+        
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        
+        /* Border Radius */
+        --radius-sm: 0.25rem;
+        --radius: 0.375rem;
+        --radius-md: 0.5rem;
+        --radius-lg: 0.75rem;
+        --radius-xl: 1rem;
+        --radius-2xl: 1.5rem;
+        
+        /* Transitions */
+        --transition-fast: 150ms ease-in-out;
+        --transition: 200ms ease-in-out;
+        --transition-slow: 300ms ease-in-out;
+      }
+
+      * {
         margin: 0;
-        background: #111;
-        color: white;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, var(--gray-900) 0%, var(--gray-800) 100%);
+        color: var(--gray-100);
+        font-family: var(--font-family);
+        font-size: var(--font-size-base);
+        line-height: 1.6;
+        min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        height: 100vh;
-        font-family: sans-serif;
+        padding: var(--space-6);
       }
+
+      .container {
+        max-width: 1200px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-8);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: var(--space-4);
+      }
+
+      .header h1 {
+        font-size: var(--font-size-4xl);
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-400), var(--success-400));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: var(--space-2);
+      }
+
+      .header p {
+        color: var(--gray-400);
+        font-size: var(--font-size-lg);
+        font-weight: 400;
+      }
+
+      .status-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        min-width: 300px;
+      }
+
+      #loading {
+        color: var(--primary-400);
+        font-weight: 500;
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--space-4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+      }
+
+      .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--gray-600);
+        border-top: 2px solid var(--primary-400);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .video-container {
+        position: relative;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-xl);
+        border: 2px solid var(--primary-500);
+        background: var(--gray-800);
+        transition: var(--transition);
+      }
+
+      .video-container.active {
+        border-color: var(--success-400);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+      }
+
       video {
         width: 100%;
         max-width: 640px;
         height: auto;
-        border: 2px solid #0f0;
-        border-radius: 12px;
+        display: block;
+        border-radius: var(--radius-xl);
       }
-      #loading {
-        color: #0f0;
-        margin-bottom: 10px;
+
+      .video-overlay {
+        position: absolute;
+        top: var(--space-4);
+        left: var(--space-4);
+        background: rgba(0, 0, 0, 0.7);
+        color: var(--gray-100);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        backdrop-filter: blur(4px);
       }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-6);
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        text-align: center;
+        box-shadow: var(--shadow-md);
+        transition: var(--transition);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .stat-card.alert {
+        animation: pulse 0.6s ease-in-out;
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+
+      .stat-value {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--success-400);
+        margin-bottom: var(--space-2);
+      }
+
+      .stat-label {
+        color: var(--gray-400);
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
       #counts {
-        color: #0f0;
-        font-size: 24px;
-        margin-top: 10px;
+        color: var(--success-400);
+        font-size: var(--font-size-2xl);
+        font-weight: 600;
+        margin: var(--space-4) 0;
       }
-      #controls button {
-        background: #222;
-        border: none;
-        border-radius: 8px;
-        padding: 10px;
-        color: white;
+
+      .controls-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .control-btn {
+        background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
+        border: 1px solid var(--gray-600);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        color: var(--gray-100);
         cursor: pointer;
-        transition: background 0.2s;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 60px;
+        min-height: 60px;
+        box-shadow: var(--shadow-sm);
       }
 
-      #controls button:hover {
-        background: #333;
+      .control-btn:hover {
+        background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+        border-color: var(--primary-500);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
       }
 
-      #controls i {
+      .control-btn:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .control-btn i {
         width: 24px;
         height: 24px;
+        color: var(--gray-300);
+        transition: var(--transition);
+      }
+
+      .control-btn:hover i {
+        color: var(--gray-100);
+      }
+
+      .chart-container {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-xl);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-lg);
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .chart-title {
+        color: var(--gray-100);
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        margin-bottom: var(--space-4);
+        text-align: center;
+      }
+
+      #chartContainer {
+        width: 100%;
+        height: 400px;
+        position: relative;
+      }
+
+      #alertChart {
+        width: 100% !important;
+        height: 100% !important;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        body {
+          padding: var(--space-4);
+        }
+        
+        .header h1 {
+          font-size: var(--font-size-3xl);
+        }
+        
+        .controls-container {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .control-btn {
+          width: 100%;
+          max-width: 200px;
+        }
+        
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header h1 {
+          font-size: var(--font-size-2xl);
+        }
+        
+        .header p {
+          font-size: var(--font-size-base);
+        }
+        
+        .stat-value {
+          font-size: var(--font-size-2xl);
+        }
       }
     </style>
   </head>
   <body>
-    <div id="loading">Loading the system...</div>
-    <h1>Touch Alert System</h1>
-    <video id="video" autoplay muted playsinline></video>
-    <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
-    <div id="counts">Alerts: 0</div>
-    <div id="controls" style="margin-top: 20px; display: flex; gap: 16px">
-      <button id="muteBtn" title="Mute"><i data-feather="volume-x"></i></button>
-      <button id="pauseBtn" title="Pause"><i data-feather="pause-circle"></i></button>
-      <button id="volDownBtn" title="Volume Down"><i data-feather="volume-1"></i></button>
-      <button id="volUpBtn" title="Volume Up"><i data-feather="volume-2"></i></button>
-      <button id="changeSoundBtn" title="Change Sound"><i data-feather="music"></i></button>
+    <div class="container">
+      <div class="header">
+        <h1>Touch Alert System</h1>
+        <p>Real-time face touch detection and awareness</p>
+      </div>
+
+      <div class="status-card">
+        <div id="loading">
+          <div class="loading-spinner"></div>
+          Loading the system...
+        </div>
+      </div>
+
+      <div class="video-container">
+        <video id="video" autoplay muted playsinline></video>
+        <div class="video-overlay">Live Detection Active</div>
+      </div>
+
+      <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="counts">0</div>
+          <div class="stat-label">Total Alerts</div>
+        </div>
+      </div>
+
+      <div class="controls-container">
+        <button id="muteBtn" class="control-btn" title="Mute">
+          <i data-feather="volume-x"></i>
+        </button>
+        <button id="pauseBtn" class="control-btn" title="Pause">
+          <i data-feather="pause-circle"></i>
+        </button>
+        <button id="volDownBtn" class="control-btn" title="Volume Down">
+          <i data-feather="volume-1"></i>
+        </button>
+        <button id="volUpBtn" class="control-btn" title="Volume Up">
+          <i data-feather="volume-2"></i>
+        </button>
+        <button id="changeSoundBtn" class="control-btn" title="Change Sound">
+          <i data-feather="music"></i>
+        </button>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">24-Hour Alert Activity</div>
+        <div id="chartContainer">
+          <canvas id="alertChart" width="400" height="200"></canvas>
+        </div>
+      </div>
     </div>
-    <div id="chartContainer" style="width: 600px; height: 400px; margin-top: 20px">
-      <canvas id="alertChart" width="400" height="200"></canvas>
-    </div>
+
     <script>
       feather.replace();
     </script>

@@ -19,12 +19,16 @@ export async function setupCamera(holistic) {
 
     videoElement.onloadedmetadata = () => {
       videoElement.play();
-      loading.style.display = 'none';
+      loading.innerHTML = '<div class="loading-spinner"></div>System Ready';
+      setTimeout(() => {
+        loading.style.display = 'none';
+        document.querySelector('.video-container').classList.add('active');
+      }, 1000);
       startDetectionLoop(holistic);
     };
   } catch (err) {
     loading.style.display = 'block';
-    loading.textContent = 'Camera access denied or unavailable.';
+    loading.innerHTML = '<div style="color: #ef4444;">❌ Camera access denied or unavailable.</div>';
     console.error('Camera setup error:', err);
   }
 }
@@ -70,6 +74,12 @@ export function onResults(results) {
 
       if (distance < 0.03 && Date.now() - lastAlertTime > MIN_ALERT_INTERVAL) {
         alertSound.play();
+        
+        // Trigger pulse animation on stat card
+        const statCard = document.querySelector('.stat-card');
+        statCard.classList.add('alert');
+        setTimeout(() => statCard.classList.remove('alert'), 600);
+        
         lastDuration = lastAlertTime === 0 ? lastAlertTime : getDuration(lastAlertTime);
 
         lastAlertTime = Date.now();

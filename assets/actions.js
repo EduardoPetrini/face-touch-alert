@@ -35,13 +35,14 @@ muteBtn.addEventListener('click', () => {
 
 function updatePauseButton() {
   const isPaused = getInt('isPaused') || 0;
+  const icon = pauseBtn.querySelector('svg');
   if (isPaused) {
     pauseBtn.title = 'Pause';
-    pauseBtn.firstChild.setAttribute('data-feather', 'pause');
+    icon.outerHTML = feather.icons['pause'].toSvg();
     setInt('isPaused', 0);
   } else {
     pauseBtn.title = 'Play';
-    pauseBtn.firstChild.setAttribute('data-feather', 'play');
+    icon.outerHTML = feather.icons['play'].toSvg();
     setInt('isPaused', 1);
   }
   feather.replace();
