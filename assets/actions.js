@@ -6,6 +6,11 @@ const volDownBtn = document.getElementById('volDownBtn');
 const volUpBtn = document.getElementById('volUpBtn');
 const changeSoundBtn = document.getElementById('changeSoundBtn');
 
+const muteBtnTxt = document.getElementById('muteBtnTxt');
+const pauseBtnTxt = document.getElementById('pauseBtnTxt');
+const volBtnTxt = document.getElementById('volBtnTxt');
+const changeSoundBtnTxt = document.getElementById('changeSoundBtnTxt');
+
 const ALERT_SOUNDS = [
   'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg',
   'assets/sounds/mixkit-bell-notification-933.wav',
@@ -22,6 +27,7 @@ const ALERT_SOUNDS = [
 const alertSound = document.getElementById('alertSound');
 alertSound.src = ALERT_SOUNDS[getInt('alertSoundIndex') || 0];
 updatePauseButton();
+updateControlTxt();
 
 volDownBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
 volUpBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
@@ -31,6 +37,8 @@ muteBtn.addEventListener('click', () => {
   alertSound.muted = !alertSound.muted;
   muteBtn.title = alertSound.muted ? 'Unmute' : 'Mute';
   feather.replace();
+
+  updateControlTxt();
 });
 
 function updatePauseButton() {
@@ -46,6 +54,8 @@ function updatePauseButton() {
     setInt('isPaused', 1);
   }
   feather.replace();
+
+  updateControlTxt();
 }
 pauseBtn.addEventListener('click', updatePauseButton);
 
@@ -57,6 +67,8 @@ volDownBtn.addEventListener('click', () => {
   volDownBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
   volUpBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
   feather.replace();
+
+  updateControlTxt();
 });
 
 volUpBtn.addEventListener('click', () => {
@@ -67,6 +79,8 @@ volUpBtn.addEventListener('click', () => {
   volUpBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
   volDownBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
   feather.replace();
+
+  updateControlTxt();
 });
 
 changeSoundBtn.addEventListener('click', () => {
@@ -79,4 +93,15 @@ changeSoundBtn.addEventListener('click', () => {
   changeSoundBtn.title = `Change sound (${nextSoundIndex + 1}/${ALERT_SOUNDS.length})`;
   feather.replace();
   setInt('alertSoundIndex', nextSoundIndex);
+
+  updateControlTxt();
 });
+
+function updateControlTxt() {
+  const isPaused = getInt('isPaused') || 0;
+  const currentSoundIndex = getInt('alertSoundIndex') || 1;
+  pauseBtnTxt.textContent = isPaused ? 'Paused' : 'Playing';
+  volBtnTxt.textContent = `${Math.round(alertSound.volume * 100)}%`;
+  changeSoundBtnTxt.textContent = `${currentSoundIndex + 1}/${ALERT_SOUNDS.length}`;
+  muteBtnTxt.textContent = alertSound.muted ? 'Muted' : 'Unmuted';
+}
