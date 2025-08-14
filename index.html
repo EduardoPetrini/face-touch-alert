@@ -350,14 +350,27 @@
       
       .control-btn-text {
         background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
-        border-radius: var(--radius-lg);
-        padding: var(--space-2) var(--space-4);
+        border-radius: 9999px; /* pill shape */
+        padding: 0.5rem 1rem;
         color: var(--gray-100);
-        display: flex;
+        font-weight: 600;
+        font-size: var(--font-size-base);
+        display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 60px;
+        min-width: 80px;
         box-shadow: var(--shadow-sm);
+        transition: background 0.3s ease, box-shadow 0.3s ease;
+        gap: 0.5rem;
+        cursor: default;
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255 255 255 / 0.1);
+      }
+
+      .control-btn-text:hover {
+        background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+        box-shadow: 0 0 12px var(--primary-400);
+        color: var(--gray-50);
       }
 
       .chart-container {
@@ -477,10 +490,10 @@
           </button>
         </div>
         <div class="controls-group">
-          <span id="muteBtnTxt" class="control-btn-text" title="MuteTxt">Unmuted</span>
-          <span id="pauseBtnTxt" class="control-btn-text" title="Pause">Stopped</span>
-          <span id="volBtnTxt" class="control-btn-text" title="Volume">100%</span>
-          <span id="changeSoundBtnTxt" class="control-btn-text" title="Change Sound">10/10</span>
+          <span id="muteBtnTxt" class="control-btn-text" title="MuteTxt"><i data-feather="volume-x" style="width:16px;height:16px;"></i> Unmuted</span>
+          <span id="pauseBtnTxt" class="control-btn-text" title="Pause"><i data-feather="pause-circle" style="width:16px;height:16px;"></i> Stopped</span>
+          <span id="volBtnTxt" class="control-btn-text" title="Volume"><i data-feather="volume" style="width:16px;height:16px;"></i> 100%</span>
+          <span id="changeSoundBtnTxt" class="control-btn-text" title="Change Sound"><i data-feather="music" style="width:16px;height:16px;"></i> 10/10</span>
         </div>
       </div>
 
