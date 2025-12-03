@@ -18,11 +18,7 @@ export async function setupCamera(holistic) {
 
     videoElement.onloadedmetadata = () => {
       videoElement.play();
-      loading.innerHTML = '<div class="loading-spinner"></div>System Ready';
-      setTimeout(() => {
-        loading.style.display = 'none';
-        document.querySelector('.video-container').classList.add('active');
-      }, 1000);
+      loading.innerHTML = '<div class="loading-spinner"></div>Loading AI Models...';
       startDetectionLoop(holistic);
     };
   } catch (err) {
@@ -142,7 +138,17 @@ function updateDashboard() {
   document.getElementById('todayActiveTime').innerText = formatDuration(todayStats.activeTime);
 }
 
+let isSystemReady = false;
+
 export function onResults(results) {
+  if (!isSystemReady) {
+    isSystemReady = true;
+    loading.innerHTML = '<div class="loading-spinner"></div>System Ready';
+    setTimeout(() => {
+      loading.style.display = 'none';
+      document.querySelector('.video-container').classList.add('active');
+    }, 500);
+  }
   const isPaused = getInt('isPaused') || 0;
   if (isPaused) return;
 
