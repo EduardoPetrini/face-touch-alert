@@ -374,61 +374,110 @@
       }
 
       .controls-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: var(--space-4);
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .control-item {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: var(--radius-xl);
-        padding: var(--space-6);
-        box-shadow: var(--shadow-lg);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
         display: flex;
         flex-direction: column;
-        gap: var(--space-4);
+        align-items: center;
+        gap: var(--space-3);
+        transition: var(--transition);
       }
 
-      .controls-group {
-        display: flex;
-        gap: var(--space-4);
-        flex-wrap: wrap;
-        justify-content: center;
+      .control-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+      }
+
+      .control-item.double-width {
+        grid-column: span 2;
       }
 
       .control-btn {
         background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
         border: 1px solid var(--gray-600);
-        border-radius: var(--radius-lg);
-        padding: var(--space-4);
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
         color: var(--gray-100);
         cursor: pointer;
         transition: var(--transition);
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 60px;
-        min-height: 60px;
         box-shadow: var(--shadow-sm);
+      }
+
+      .control-btn.sm {
+        width: 36px;
+        height: 36px;
       }
 
       .control-btn:hover {
         background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
         border-color: var(--primary-500);
-        transform: translateY(-1px);
+        transform: scale(1.05);
         box-shadow: var(--shadow-md);
       }
 
       .control-btn:active {
-        transform: translateY(0);
-        box-shadow: var(--shadow-sm);
+        transform: scale(0.95);
       }
 
       .control-btn i {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         color: var(--gray-300);
         transition: var(--transition);
       }
 
       .control-btn:hover i {
         color: var(--gray-100);
+      }
+
+      .control-status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        text-align: center;
+      }
+
+      .status-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--gray-400);
+      }
+
+      .status-value {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--gray-200);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 120px;
+      }
+
+      .volume-controls {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        width: 100%;
+        justify-content: space-between;
+        padding: 0 var(--space-2);
       }
 
       /* Enhanced Status Indicator Styles */
@@ -791,28 +840,49 @@
       </div>
 
       <div class="controls-container">
-        <div class="controls-group">
-          <button id="muteBtn" class="control-btn" title="Mute">
-            <i data-feather="volume-x"></i>
-          </button>
-          <button id="pauseBtn" class="control-btn" title="Pause">
-            <i data-feather="pause-circle"></i>
-          </button>
-          <button id="volDownBtn" class="control-btn" title="Volume Down">
-            <i data-feather="volume-1"></i>
-          </button>
-          <button id="volUpBtn" class="control-btn" title="Volume Up">
+        <div class="control-item">
+          <button id="muteBtn" class="control-btn" title="Toggle Sound">
             <i data-feather="volume-2"></i>
           </button>
-          <button id="changeSoundBtn" class="control-btn" title="Change Sound">
+          <div class="control-status">
+            <span class="status-label">Sound</span>
+            <span id="muteBtnTxt" class="status-value">On</span>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <button id="pauseBtn" class="control-btn" title="Toggle System">
+            <i data-feather="pause-circle"></i>
+          </button>
+          <div class="control-status">
+            <span class="status-label">System</span>
+            <span id="pauseBtnTxt" class="status-value">Active</span>
+          </div>
+        </div>
+
+        <div class="control-item double-width">
+          <div class="volume-controls">
+            <button id="volDownBtn" class="control-btn sm" title="Volume Down">
+              <i data-feather="minus"></i>
+            </button>
+            <div class="control-status">
+              <span class="status-label">Volume</span>
+              <span id="volBtnTxt" class="status-value">100%</span>
+            </div>
+            <button id="volUpBtn" class="control-btn sm" title="Volume Up">
+              <i data-feather="plus"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="control-item">
+          <button id="changeSoundBtn" class="control-btn" title="Change Alert Sound">
             <i data-feather="music"></i>
           </button>
-        </div>
-        <div class="controls-group">
-          <span id="muteBtnTxt" class="control-btn-text" title="MuteTxt"><i data-feather="volume-x" style="width: 16px; height: 16px"></i> Unmuted</span>
-          <span id="pauseBtnTxt" class="control-btn-text" title="Pause"><i data-feather="pause-circle" style="width: 16px; height: 16px"></i> Stopped</span>
-          <span id="volBtnTxt" class="control-btn-text" title="Volume"><i data-feather="volume" style="width: 16px; height: 16px"></i> 100%</span>
-          <span id="changeSoundBtnTxt" class="control-btn-text" title="Change Sound"><i data-feather="music" style="width: 16px; height: 16px"></i> 10/10</span>
+          <div class="control-status">
+            <span class="status-label">Alert Sound</span>
+            <span id="changeSoundBtnTxt" class="status-value">Alarm Clock</span>
+          </div>
         </div>
       </div>
 
