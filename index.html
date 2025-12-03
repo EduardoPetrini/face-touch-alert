@@ -886,10 +886,19 @@
         </div>
       </div>
 
-      <div class="chart-container">
-        <div class="chart-title">24-Hour Alert Activity</div>
-        <div id="chartContainer">
-          <canvas id="alertChart" width="400" height="200"></canvas>
+      <div class="charts-wrapper" style="width: 100%; max-width: 1200px; display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--space-6)">
+        <div class="chart-container">
+          <div class="chart-title">Last Hour Activity</div>
+          <div class="chart-canvas-container" style="position: relative; height: 300px; width: 100%">
+            <canvas id="minuteChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-container">
+          <div class="chart-title">24-Hour Activity</div>
+          <div class="chart-canvas-container" style="position: relative; height: 300px; width: 100%">
+            <canvas id="alertChart"></canvas>
+          </div>
         </div>
       </div>
     </div>

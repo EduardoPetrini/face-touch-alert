@@ -1,4 +1,4 @@
-import { updateChartFromTimestamps } from './chart.js';
+import { updateChartFromTimestamps, updateMinuteChartFromTimestamps } from './chart.js';
 import { getArray, getInt, setArray, setInt } from './storage.js';
 
 const videoElement = document.getElementById('video');
@@ -46,6 +46,7 @@ const alertsList = getArray('alertsList') || [];
 
 // Initial update
 updateChartFromTimestamps(alertsList);
+updateMinuteChartFromTimestamps(alertsList);
 updateDashboard();
 
 // Start interval to update "Time Since" every minute
@@ -186,6 +187,7 @@ export function onResults(results) {
         setArray('alertsList', alertsList);
 
         updateChartFromTimestamps(alertsList);
+        updateMinuteChartFromTimestamps(alertsList);
         updateDashboard();
 
         return;
