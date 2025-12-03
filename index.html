@@ -243,12 +243,13 @@
         backdrop-filter: blur(4px);
       }
 
+      /* Enhanced Stats Grid */
       .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: var(--space-6);
         width: 100%;
-        max-width: 800px;
+        max-width: 900px;
       }
 
       .stat-card {
@@ -257,9 +258,10 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: var(--radius-lg);
         padding: var(--space-6);
-        text-align: center;
-        box-shadow: var(--shadow-md);
         transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
       }
 
       .stat-card:hover {
@@ -270,6 +272,8 @@
 
       .stat-card.alert {
         animation: pulse 0.6s ease-in-out;
+        border-color: var(--success-500);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
       }
 
       @keyframes pulse {
@@ -277,33 +281,96 @@
           transform: scale(1);
         }
         50% {
-          transform: scale(1.05);
+          transform: scale(1.02);
         }
         100% {
           transform: scale(1);
         }
       }
 
-      .stat-value {
-        font-size: var(--font-size-3xl);
-        font-weight: 700;
-        color: var(--success-400);
+      /* Main Stat Panel */
+      .stat-header {
+        text-align: center;
         margin-bottom: var(--space-2);
       }
 
-      .stat-label {
+      .stat-value-lg {
+        font-size: var(--font-size-4xl);
+        font-weight: 700;
+        color: var(--success-400);
+        line-height: 1.2;
+      }
+
+      .stat-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-2);
+        background: rgba(0, 0, 0, 0.2);
+        padding: var(--space-3);
+        border-radius: var(--radius-md);
+      }
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-1);
+      }
+
+      .detail-label {
+        font-size: var(--font-size-xs);
         color: var(--gray-400);
-        font-size: var(--font-size-sm);
-        font-weight: 500;
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
 
-      #counts {
-        color: var(--success-400);
-        font-size: var(--font-size-2xl);
+      .detail-value {
+        font-size: var(--font-size-sm);
         font-weight: 600;
-        margin: var(--space-4) 0;
+        color: var(--gray-200);
+      }
+
+      .detail-date {
+        font-size: 0.7rem;
+        color: var(--gray-500);
+        font-weight: 400;
+        margin-top: -2px;
+      }
+
+      /* Today Summary Panel */
+      .stat-title {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--gray-200);
+        margin-bottom: var(--space-2);
+        text-align: center;
+      }
+
+      .today-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-4);
+      }
+
+      .today-item {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+        padding: var(--space-3);
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .today-label {
+        font-size: var(--font-size-xs);
+        color: var(--gray-400);
+      }
+
+      .today-value {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--primary-300);
       }
 
       .controls-container {
@@ -363,7 +430,7 @@
       .control-btn:hover i {
         color: var(--gray-100);
       }
-      
+
       /* Enhanced Status Indicator Styles */
       .control-btn-text,
       .status-indicator {
@@ -388,16 +455,16 @@
       }
 
       /* Status State Styles using Custom Properties */
-      .status-indicator[data-state="active"],
-      .control-btn-text[data-state="active"] {
+      .status-indicator[data-state='active'],
+      .control-btn-text[data-state='active'] {
         background: var(--status-active-bg);
         border-color: var(--status-active-border);
         color: var(--gray-50);
         box-shadow: var(--status-active-shadow);
       }
 
-      .status-indicator[data-state="inactive"],
-      .control-btn-text[data-state="inactive"] {
+      .status-indicator[data-state='inactive'],
+      .control-btn-text[data-state='inactive'] {
         background: var(--status-inactive-bg);
         border-color: var(--status-inactive-border);
         color: var(--gray-300);
@@ -405,8 +472,8 @@
         box-shadow: var(--status-inactive-shadow);
       }
 
-      .status-indicator[data-state="silent"],
-      .control-btn-text[data-state="silent"] {
+      .status-indicator[data-state='silent'],
+      .control-btn-text[data-state='silent'] {
         background: var(--status-silent-bg);
         border-color: var(--status-silent-border);
         color: var(--gray-50);
@@ -455,19 +522,19 @@
         box-shadow: var(--shadow-lg);
       }
 
-      .status-indicator[data-state="active"]:hover,
-      .control-btn-text[data-state="active"]:hover {
+      .status-indicator[data-state='active']:hover,
+      .control-btn-text[data-state='active']:hover {
         box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
       }
 
-      .status-indicator[data-state="inactive"]:hover,
-      .control-btn-text[data-state="inactive"]:hover {
+      .status-indicator[data-state='inactive']:hover,
+      .control-btn-text[data-state='inactive']:hover {
         opacity: 0.9;
         box-shadow: var(--shadow-md);
       }
 
-      .status-indicator[data-state="silent"]:hover,
-      .control-btn-text[data-state="silent"]:hover {
+      .status-indicator[data-state='silent']:hover,
+      .control-btn-text[data-state='silent']:hover {
         box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
       }
 
@@ -478,7 +545,8 @@
       }
 
       @keyframes statusPulse {
-        0%, 100% {
+        0%,
+        100% {
           transform: scale(1);
           opacity: 1;
         }
@@ -620,18 +688,18 @@
 
       /* High contrast mode support */
       @media (prefers-contrast: high) {
-        .status-indicator[data-state="active"],
-        .control-btn-text[data-state="active"] {
+        .status-indicator[data-state='active'],
+        .control-btn-text[data-state='active'] {
           border: 2px solid var(--success-400);
         }
 
-        .status-indicator[data-state="inactive"],
-        .control-btn-text[data-state="inactive"] {
+        .status-indicator[data-state='inactive'],
+        .control-btn-text[data-state='inactive'] {
           border: 2px solid var(--gray-400);
         }
 
-        .status-indicator[data-state="silent"],
-        .control-btn-text[data-state="silent"] {
+        .status-indicator[data-state='silent'],
+        .control-btn-text[data-state='silent'] {
           border: 2px solid var(--warning-400);
         }
       }
@@ -675,9 +743,50 @@
       <audio id="alertSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg"></audio>
 
       <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Alerts</div>
-          <div class="stat-value" id="counts">0</div>
+        <!-- Total Alerts Panel -->
+        <div class="stat-card main-stat">
+          <div class="stat-header">
+            <div class="stat-label">Total Alerts</div>
+            <div class="stat-value-lg" id="totalAlerts">0</div>
+          </div>
+          <div class="stat-details">
+            <div class="detail-item">
+              <span class="detail-label">Last Alert</span>
+              <span class="detail-value" id="lastAlertTime">--:--</span>
+              <span class="detail-date" id="lastAlertDate"></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Time Since</span>
+              <span class="detail-value" id="timeSinceLast">0m</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Prev Interval</span>
+              <span class="detail-value" id="lastInterval">0m</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Today Summary Panel -->
+        <div class="stat-card today-stat">
+          <div class="stat-title">Today's Summary</div>
+          <div class="today-grid">
+            <div class="today-item">
+              <span class="today-label">Today's Alerts</span>
+              <span class="today-value" id="todayCount">0</span>
+            </div>
+            <div class="today-item">
+              <span class="today-label">Avg Interval</span>
+              <span class="today-value" id="todayAvgInterval">0m</span>
+            </div>
+            <div class="today-item">
+              <span class="today-label">First Alert</span>
+              <span class="today-value" id="todayFirst">--:--</span>
+            </div>
+            <div class="today-item">
+              <span class="today-label">Active Time</span>
+              <span class="today-value" id="todayActiveTime">0h 0m</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -700,10 +809,10 @@
           </button>
         </div>
         <div class="controls-group">
-          <span id="muteBtnTxt" class="control-btn-text" title="MuteTxt"><i data-feather="volume-x" style="width:16px;height:16px;"></i> Unmuted</span>
-          <span id="pauseBtnTxt" class="control-btn-text" title="Pause"><i data-feather="pause-circle" style="width:16px;height:16px;"></i> Stopped</span>
-          <span id="volBtnTxt" class="control-btn-text" title="Volume"><i data-feather="volume" style="width:16px;height:16px;"></i> 100%</span>
-          <span id="changeSoundBtnTxt" class="control-btn-text" title="Change Sound"><i data-feather="music" style="width:16px;height:16px;"></i> 10/10</span>
+          <span id="muteBtnTxt" class="control-btn-text" title="MuteTxt"><i data-feather="volume-x" style="width: 16px; height: 16px"></i> Unmuted</span>
+          <span id="pauseBtnTxt" class="control-btn-text" title="Pause"><i data-feather="pause-circle" style="width: 16px; height: 16px"></i> Stopped</span>
+          <span id="volBtnTxt" class="control-btn-text" title="Volume"><i data-feather="volume" style="width: 16px; height: 16px"></i> 100%</span>
+          <span id="changeSoundBtnTxt" class="control-btn-text" title="Change Sound"><i data-feather="music" style="width: 16px; height: 16px"></i> 10/10</span>
         </div>
       </div>
 
