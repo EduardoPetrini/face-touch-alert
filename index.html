@@ -99,6 +99,22 @@
         --transition-fast: 150ms ease-in-out;
         --transition: 200ms ease-in-out;
         --transition-slow: 300ms ease-in-out;
+
+        /* Status Indicator Custom Properties */
+        --status-active-bg: linear-gradient(135deg, var(--success-600), var(--success-700));
+        --status-inactive-bg: linear-gradient(135deg, var(--gray-600), var(--gray-700));
+        --status-silent-bg: linear-gradient(135deg, var(--warning-600), var(--warning-700));
+        --status-active-border: var(--success-500);
+        --status-inactive-border: var(--gray-500);
+        --status-silent-border: var(--warning-500);
+        --status-active-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+        --status-inactive-shadow: var(--shadow-sm);
+        --status-silent-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
+        --status-transition: all var(--transition-slow);
+        --status-animation-scale: 1.05;
+        --status-hover-lift: -1px;
+        --status-pulse-duration: 0.6s;
+        --status-update-duration: 0.3s;
       }
 
       * {
@@ -348,7 +364,9 @@
         color: var(--gray-100);
       }
       
-      .control-btn-text {
+      /* Enhanced Status Indicator Styles */
+      .control-btn-text,
+      .status-indicator {
         background: linear-gradient(135deg, var(--gray-700), var(--gray-800));
         border-radius: 9999px; /* pill shape */
         padding: 0.5rem 1rem;
@@ -360,17 +378,114 @@
         justify-content: center;
         min-width: 80px;
         box-shadow: var(--shadow-sm);
-        transition: background 0.3s ease, box-shadow 0.3s ease;
+        transition: var(--status-transition);
         gap: 0.5rem;
         cursor: default;
         backdrop-filter: blur(6px);
-        border: 1px solid rgba(255 255 255 / 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
       }
 
-      .control-btn-text:hover {
-        background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-        box-shadow: 0 0 12px var(--primary-400);
+      /* Status State Styles using Custom Properties */
+      .status-indicator[data-state="active"],
+      .control-btn-text[data-state="active"] {
+        background: var(--status-active-bg);
+        border-color: var(--status-active-border);
         color: var(--gray-50);
+        box-shadow: var(--status-active-shadow);
+      }
+
+      .status-indicator[data-state="inactive"],
+      .control-btn-text[data-state="inactive"] {
+        background: var(--status-inactive-bg);
+        border-color: var(--status-inactive-border);
+        color: var(--gray-300);
+        opacity: 0.7;
+        box-shadow: var(--status-inactive-shadow);
+      }
+
+      .status-indicator[data-state="silent"],
+      .control-btn-text[data-state="silent"] {
+        background: var(--status-silent-bg);
+        border-color: var(--status-silent-border);
+        color: var(--gray-50);
+        box-shadow: var(--status-silent-shadow);
+      }
+
+      /* Animation for status updates using Custom Properties */
+      .status-indicator.updating,
+      .control-btn-text.updating {
+        transform: scale(var(--status-animation-scale));
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        animation: statusUpdate var(--status-update-duration) ease-in-out;
+      }
+
+      @keyframes statusUpdate {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(var(--status-animation-scale));
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* Status icon styles */
+      .status-icon {
+        width: 16px;
+        height: 16px;
+        transition: var(--transition);
+        flex-shrink: 0;
+      }
+
+      .status-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: var(--transition);
+      }
+
+      /* Hover effects for status indicators using Custom Properties */
+      .control-btn-text:hover,
+      .status-indicator:hover {
+        transform: translateY(var(--status-hover-lift));
+        box-shadow: var(--shadow-lg);
+      }
+
+      .status-indicator[data-state="active"]:hover,
+      .control-btn-text[data-state="active"]:hover {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      }
+
+      .status-indicator[data-state="inactive"]:hover,
+      .control-btn-text[data-state="inactive"]:hover {
+        opacity: 0.9;
+        box-shadow: var(--shadow-md);
+      }
+
+      .status-indicator[data-state="silent"]:hover,
+      .control-btn-text[data-state="silent"]:hover {
+        box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+      }
+
+      /* Pulse animation for important status changes using Custom Properties */
+      .status-indicator.pulse,
+      .control-btn-text.pulse {
+        animation: statusPulse var(--status-pulse-duration) ease-in-out;
+      }
+
+      @keyframes statusPulse {
+        0%, 100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.02);
+          opacity: 0.9;
+        }
       }
 
       .chart-container {
@@ -426,6 +541,36 @@
         .stats-grid {
           grid-template-columns: 1fr;
         }
+
+        /* Enhanced responsive styles for status indicators */
+        .control-btn-text,
+        .status-indicator {
+          min-width: 120px;
+          font-size: var(--font-size-sm);
+          padding: 0.4rem 0.8rem;
+        }
+
+        .status-text {
+          font-size: var(--font-size-sm);
+        }
+
+        .status-icon {
+          width: 14px;
+          height: 14px;
+        }
+
+        .controls-group {
+          flex-direction: column;
+          align-items: center;
+          width: 100%;
+        }
+
+        .control-btn-text,
+        .status-indicator {
+          width: 100%;
+          max-width: 200px;
+          justify-content: center;
+        }
       }
 
       @media (max-width: 480px) {
@@ -439,6 +584,71 @@
 
         .stat-value {
           font-size: var(--font-size-2xl);
+        }
+
+        /* Enhanced mobile styles for status indicators */
+        .control-btn-text,
+        .status-indicator {
+          min-width: 100px;
+          font-size: var(--font-size-xs);
+          padding: 0.3rem 0.6rem;
+          gap: 0.3rem;
+        }
+
+        .status-text {
+          font-size: var(--font-size-xs);
+          max-width: 120px;
+        }
+
+        .status-icon {
+          width: 12px;
+          height: 12px;
+        }
+
+        /* Reduce animation intensity on mobile for better performance */
+        .status-indicator.updating,
+        .control-btn-text.updating {
+          transform: scale(1.02);
+          animation-duration: 0.2s;
+        }
+
+        .status-indicator:hover,
+        .control-btn-text:hover {
+          transform: none; /* Disable hover lift on mobile */
+        }
+      }
+
+      /* High contrast mode support */
+      @media (prefers-contrast: high) {
+        .status-indicator[data-state="active"],
+        .control-btn-text[data-state="active"] {
+          border: 2px solid var(--success-400);
+        }
+
+        .status-indicator[data-state="inactive"],
+        .control-btn-text[data-state="inactive"] {
+          border: 2px solid var(--gray-400);
+        }
+
+        .status-indicator[data-state="silent"],
+        .control-btn-text[data-state="silent"] {
+          border: 2px solid var(--warning-400);
+        }
+      }
+
+      /* Reduced motion support */
+      @media (prefers-reduced-motion: reduce) {
+        .status-indicator,
+        .control-btn-text {
+          transition: none;
+        }
+
+        .status-indicator.updating,
+        .control-btn-text.updating,
+        .status-indicator.pulse,
+        .control-btn-text.pulse {
+          animation: none;
+          transform: none;
         }
       }
     </style>
