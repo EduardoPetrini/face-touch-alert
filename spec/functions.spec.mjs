@@ -29,17 +29,26 @@ describe('Chart Data Functions', () => {
 
   it('should update chart data from timestamps', async () => {
     const { updateChartFromTimestamps } = await import('../assets/chart.js');
-    const timestamps = [Date.now() - 30 * 60 * 1000, Date.now() - 3 * 60 * 1000, Date.now() - 55 * 60 * 1000, Date.now() - 64 * 60 * 1000, Date.now() - 2 * 60 * 60 * 1000, Date.now() - 5 * 60 * 60 * 1000, Date.now() - 25 * 60 * 60 * 1000, Date.now() - 24 * 59 * 60 * 1000];
-    const hourlyCounts = updateChartFromTimestamps(timestamps);
-    expect(hourlyCounts[0]).toBe(1);
-    expect(hourlyCounts[21]).toBe(1);
+    const now = new Date('2026-04-17T12:34:00Z');
+    const timestamps = [
+      now.getTime() - 30 * 60 * 1000,
+      now.getTime() - 3 * 60 * 1000,
+      now.getTime() - 55 * 60 * 1000,
+      now.getTime() - 64 * 60 * 1000,
+      now.getTime() - 2 * 60 * 60 * 1000,
+      now.getTime() - 5 * 60 * 60 * 1000,
+      now.getTime() - 25 * 60 * 60 * 1000,
+      now.getTime() - 24 * 59 * 60 * 1000,
+    ];
+    const hourlyCounts = updateChartFromTimestamps(timestamps, new Date(now));
     expect(hourlyCounts[18]).toBe(1);
-    expect(hourlyCounts[22]).toBe(1);
-    expect(hourlyCounts[23]).toBe(3);
-    expect(hourlyCounts.filter(count => count > 0).length).toBe(5);
+    expect(hourlyCounts[21]).toBe(1);
+    expect(hourlyCounts[22]).toBe(2);
+    expect(hourlyCounts[23]).toBe(2);
+    expect(hourlyCounts.filter(count => count > 0).length).toBe(4);
   });
 
-  fit('should update chart data from static timestamps', async () => {
+  it('should update chart data from static timestamps', async () => {
     const { updateChartFromTimestamps } = await import('../assets/chart.js');
     const timestamps = [1750205183751];
     const hourlyCounts = updateChartFromTimestamps(timestamps, new Date(1750266177113));

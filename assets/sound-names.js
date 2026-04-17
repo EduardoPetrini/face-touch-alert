@@ -21,6 +21,14 @@ export const SOUND_NAMES = {
   'mixkit-urgent-simple-tone-loop-2976.wav': 'Urgent Alert'
 };
 
+function extractFileName(soundUrl) {
+  return soundUrl
+    .split(/[\\/]/)
+    .pop()
+    ?.split('?')[0]
+    ?.split('#')[0];
+}
+
 /**
  * Resolves a user-friendly sound name from a sound URL or file path
  * @param {string} soundUrl - The URL or file path of the sound
@@ -35,7 +43,7 @@ export function getSoundName(soundUrl) {
     }
 
     // Extract filename from URL/path
-    const fileName = soundUrl.split('/').pop();
+    const fileName = extractFileName(soundUrl);
     
     // Handle case where split results in empty string
     if (!fileName) {
@@ -81,7 +89,7 @@ export function hasSoundName(soundUrl) {
       return false;
     }
     
-    const fileName = soundUrl.split('/').pop();
+    const fileName = extractFileName(soundUrl);
     return fileName && SOUND_NAMES.hasOwnProperty(fileName);
   } catch (error) {
     console.error('Error checking sound name existence:', error);

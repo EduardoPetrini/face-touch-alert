@@ -57,7 +57,7 @@ describe('Sound Name Mapping System', () => {
     });
 
     it('should handle URLs with query parameters', () => {
-      expect(getSoundName('assets/sounds/mixkit-bell-notification-933.wav?v=1.0')).toBe('Unknown Sound');
+      expect(getSoundName('assets/sounds/mixkit-bell-notification-933.wav?v=1.0')).toBe('Bell');
     });
 
     it('should return "Unknown Sound" for files not in the mapping', () => {
@@ -150,8 +150,8 @@ describe('Sound Name Mapping System', () => {
     it('should return objects with fileName and friendlyName properties', () => {
       const soundNames = getAllSoundNames();
       soundNames.forEach(sound => {
-        expect(sound).toHaveProperty('fileName');
-        expect(sound).toHaveProperty('friendlyName');
+        expect(Object.prototype.hasOwnProperty.call(sound, 'fileName')).toBe(true);
+        expect(Object.prototype.hasOwnProperty.call(sound, 'friendlyName')).toBe(true);
         expect(typeof sound.fileName).toBe('string');
         expect(typeof sound.friendlyName).toBe('string');
       });

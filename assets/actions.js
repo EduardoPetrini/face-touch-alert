@@ -1,11 +1,13 @@
 import { getInt, setInt } from './storage.js';
 import { getSoundName } from './sound-names.js';
+import { initializeState, setPausedState, subscribe } from './state.js';
 
 const muteBtn = document.getElementById('muteBtn');
 const pauseBtn = document.getElementById('pauseBtn');
 const volDownBtn = document.getElementById('volDownBtn');
 const volUpBtn = document.getElementById('volUpBtn');
 const changeSoundBtn = document.getElementById('changeSoundBtn');
+const previewSoundBtn = document.getElementById('previewSoundBtn');
 
 const muteBtnTxt = document.getElementById('muteBtnTxt');
 const pauseBtnTxt = document.getElementById('pauseBtnTxt');
@@ -27,17 +29,20 @@ const ALERT_SOUNDS = [
 
 const alertSound = document.getElementById('alertSound');
 alertSound.src = ALERT_SOUNDS[getInt('alertSoundIndex') || 0];
-setInt('isPaused', 0);
-renderPauseButton();
+initializeState();
+subscribe(renderSystemControls);
 updateControlTxt();
 
 volDownBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
 volUpBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
+previewSoundBtn.title = `Preview sound: ${getSoundName(alertSound.src)}`;
 
 muteBtn.addEventListener('click', () => {
   const alertSound = document.getElementById('alertSound');
   alertSound.muted = !alertSound.muted;
   muteBtn.title = alertSound.muted ? 'Unmute' : 'Mute';
+  muteBtn.setAttribute('aria-label', alertSound.muted ? 'Unmute alerts' : 'Mute alerts');
+  muteBtn.setAttribute('aria-pressed', alertSound.muted ? 'true' : 'false');
 
   if (alertSound.muted) {
     muteBtn.innerHTML = '<i data-feather="volume-x"></i>';
@@ -54,9 +59,13 @@ function renderPauseButton() {
 
   if (isPaused) {
     pauseBtn.title = 'Resume Detection';
+    pauseBtn.setAttribute('aria-label', 'Resume detection');
+    pauseBtn.setAttribute('aria-pressed', 'true');
     pauseBtn.innerHTML = '<i data-feather="play-circle"></i>';
   } else {
     pauseBtn.title = 'Pause Detection';
+    pauseBtn.setAttribute('aria-label', 'Pause detection');
+    pauseBtn.setAttribute('aria-pressed', 'false');
     pauseBtn.innerHTML = '<i data-feather="pause-circle"></i>';
   }
   feather.replace();
@@ -64,9 +73,7 @@ function renderPauseButton() {
 
 function updatePauseButton() {
   const isPaused = getInt('isPaused') || 0;
-  setInt('isPaused', isPaused ? 0 : 1);
-  renderPauseButton();
-  updateControlTxt();
+  setPausedState(!isPaused);
 }
 pauseBtn.addEventListener('click', updatePauseButton);
 
@@ -98,14 +105,23 @@ changeSoundBtn.addEventListener('click', () => {
   const nextSoundIndex = (currentSoundIndex + 1) % ALERT_SOUNDS.length;
   alertSound.src = ALERT_SOUNDS[nextSoundIndex];
   alertSound.load();
-  alertSound.play();
 
   const friendlyName = getSoundName(ALERT_SOUNDS[nextSoundIndex]);
-  changeSoundBtn.title = `Change sound: ${friendlyName}`;
+  changeSoundBtn.title = `Choose next alert sound. Current: ${friendlyName}`;
+  previewSoundBtn.title = `Preview sound: ${friendlyName}`;
 
   setInt('alertSoundIndex', nextSoundIndex);
 
   updateControlTxt();
+});
+
+previewSoundBtn.addEventListener('click', async () => {
+  try {
+    alertSound.currentTime = 0;
+    await alertSound.play();
+  } catch (error) {
+    console.warn('Sound preview failed:', error);
+  }
 });
 
 function updateControlTxt() {
@@ -120,9 +136,17 @@ function updateControlTxt() {
 
   // Update Sound Name
   const currentSoundUrl = alertSound.src;
-  changeSoundBtnTxt.textContent = getSoundName(currentSoundUrl);
+  const soundName = getSoundName(currentSoundUrl);
+  changeSoundBtnTxt.textContent = soundName;
+  changeSoundBtn.title = `Choose next alert sound. Current: ${soundName}`;
+  previewSoundBtn.title = `Preview sound: ${soundName}`;
 
   // Update Mute Status
   muteBtnTxt.textContent = alertSound.muted ? 'Muted' : 'On';
   muteBtnTxt.style.color = alertSound.muted ? 'var(--gray-400)' : 'var(--success-400)';
+}
+
+function renderSystemControls() {
+  renderPauseButton();
+  updateControlTxt();
 }

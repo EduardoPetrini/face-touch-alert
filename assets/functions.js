@@ -1,30 +1,86 @@
 import { updateChartFromTimestamps, updateMinuteChartFromTimestamps } from './chart.js';
+import { getTodayStats, pruneAlertHistory } from './analytics.js';
 import { getArray, getInt, setArray, setInt } from './storage.js';
+import { getState, setErrorState, setLoadingState, setReadyState, subscribe } from './state.js';
 
 const videoElement = document.getElementById('video');
 const alertSound = document.getElementById('alertSound');
-const loading = document.getElementById('loading');
+
+const DETECTION_INTERVAL_MS = 600;
+const MIN_ALERT_INTERVAL = 10000;
+
+let detectionTimerId = null;
+let isDetectionLoopRunning = false;
+let isInferenceInFlight = false;
+let cameraStream = null;
+let holisticInstance = null;
 
 export function startDetectionLoop(holistic) {
-  setInterval(() => {
-    holistic.send({ image: videoElement });
-  }, 600);
+  holisticInstance = holistic;
+
+  if (isDetectionLoopRunning) {
+    return;
+  }
+
+  isDetectionLoopRunning = true;
+
+  const runDetectionFrame = async () => {
+    if (!isDetectionLoopRunning) {
+      return;
+    }
+
+    if (document.hidden || getState().isPaused || videoElement.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
+      detectionTimerId = window.setTimeout(runDetectionFrame, DETECTION_INTERVAL_MS);
+      return;
+    }
+
+    if (isInferenceInFlight) {
+      detectionTimerId = window.setTimeout(runDetectionFrame, DETECTION_INTERVAL_MS);
+      return;
+    }
+
+    isInferenceInFlight = true;
+
+    try {
+      await holistic.send({ image: videoElement });
+    } catch (error) {
+      console.error('Detection loop error:', error);
+      stopDetectionLoop();
+      setErrorState('Detection stopped unexpectedly. Please refresh the page.');
+      return;
+    } finally {
+      isInferenceInFlight = false;
+    }
+
+    detectionTimerId = window.setTimeout(runDetectionFrame, DETECTION_INTERVAL_MS);
+  };
+
+  runDetectionFrame();
+}
+
+export function stopDetectionLoop() {
+  isDetectionLoopRunning = false;
+
+  if (detectionTimerId !== null) {
+    window.clearTimeout(detectionTimerId);
+    detectionTimerId = null;
+  }
 }
 
 export async function setupCamera(holistic) {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoElement.srcObject = stream;
+    setLoadingState('Requesting camera access...');
+    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoElement.srcObject = cameraStream;
 
     videoElement.onloadedmetadata = () => {
       videoElement.play();
-      loading.innerHTML = '<div class="loading-spinner"></div>Loading AI Models...';
+      setLoadingState('Loading AI models...');
       startDetectionLoop(holistic);
     };
   } catch (err) {
-    loading.style.display = 'block';
-    loading.innerHTML = '<div style="color: #ef4444;">❌ Camera access denied or unavailable.</div>';
     console.error('Camera setup error:', err);
+    setErrorState('Camera access denied or unavailable.');
   }
 }
 
@@ -36,13 +92,17 @@ function getDuration(lastAlertTime) {
   return Math.round((Date.now() - lastAlertTime) / 60000);
 }
 
-const MIN_ALERT_INTERVAL = 10000;
 let lastInterval = null;
 let lastAlertTime = getInt('lastAlertTime') || 0;
 let alertsCount = getInt('alertsCount') || 0;
 let currentDuration = getInt('currentDuration') || 0;
 let lastDuration = getInt('lastDuration') || 0;
-const alertsList = getArray('alertsList') || [];
+const persistedAlerts = getArray('alertsList') || [];
+const alertsList = pruneAlertHistory(persistedAlerts);
+
+if (alertsList.length !== persistedAlerts.length) {
+  setArray('alertsList', alertsList);
+}
 
 // Initial update
 updateChartFromTimestamps(alertsList);
@@ -52,46 +112,35 @@ updateDashboard();
 // Start interval to update "Time Since" every minute
 setInterval(updateDashboard, 60000);
 
-function getTodayStats(alerts) {
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-  const todayAlerts = alerts.filter(timestamp => timestamp >= todayStart);
-  const count = todayAlerts.length;
-
-  if (count === 0) {
-    return {
-      count: 0,
-      avgInterval: 0,
-      first: null,
-      last: null,
-      activeTime: 0,
-    };
+subscribe(state => {
+  if (state.isPaused) {
+    stopDetectionLoop();
+    return;
   }
 
-  const first = todayAlerts[0];
-  const last = todayAlerts[todayAlerts.length - 1];
-  const activeTime = now.getTime() - first;
+  if (!document.hidden && holisticInstance) {
+    startDetectionLoop(holisticInstance);
+  }
+});
 
-  // Calculate average interval
-  let totalInterval = 0;
-  if (count > 1) {
-    for (let i = 1; i < count; i++) {
-      totalInterval += todayAlerts[i] - todayAlerts[i - 1];
-    }
-    var avgInterval = totalInterval / (count - 1);
-  } else {
-    var avgInterval = 0;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopDetectionLoop();
+    return;
   }
 
-  return {
-    count,
-    avgInterval,
-    first,
-    last,
-    activeTime,
-  };
-}
+  if (!getState().isPaused && holisticInstance) {
+    startDetectionLoop(holisticInstance);
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  stopDetectionLoop();
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+  }
+});
 
 function formatDuration(ms) {
   if (!ms) return '0m';
@@ -136,7 +185,7 @@ function updateDashboard() {
   document.getElementById('todayCount').innerText = todayStats.count;
   document.getElementById('todayAvgInterval').innerText = formatDuration(todayStats.avgInterval);
   document.getElementById('todayFirst').innerText = formatTime(todayStats.first);
-  document.getElementById('todayActiveTime').innerText = formatDuration(todayStats.activeTime);
+  document.getElementById('todayActiveTime').innerText = formatDuration(todayStats.timeSinceFirstAlert);
 }
 
 let isSystemReady = false;
@@ -144,13 +193,10 @@ let isSystemReady = false;
 export function onResults(results) {
   if (!isSystemReady) {
     isSystemReady = true;
-    loading.innerHTML = '<div class="loading-spinner"></div>System Ready';
-    setTimeout(() => {
-      loading.style.display = 'none';
-      document.querySelector('.video-container').classList.add('active');
-    }, 500);
+    setReadyState();
   }
-  const isPaused = getInt('isPaused') || 0;
+
+  const isPaused = getState().isPaused;
   if (isPaused) return;
 
   if (!results.faceLandmarks || (!results.rightHandLandmarks && !results.leftHandLandmarks)) return;
@@ -165,7 +211,9 @@ export function onResults(results) {
       const distance = Math.sqrt(dx * dx + dy * dy);
 
       if (distance < 0.03 && Date.now() - lastAlertTime > MIN_ALERT_INTERVAL) {
-        alertSound.play();
+        alertSound.play().catch(error => {
+          console.warn('Alert playback failed:', error);
+        });
 
         // Trigger pulse animation on stat card
         const statCard = document.querySelector('.stat-card.main-stat');
@@ -179,6 +227,8 @@ export function onResults(results) {
 
         lastAlertTime = now;
         alertsList.push(lastAlertTime);
+        const prunedAlerts = pruneAlertHistory(alertsList, now);
+        alertsList.splice(0, alertsList.length, ...prunedAlerts);
         alertsCount++;
 
         setInt('lastAlertTime', lastAlertTime);
