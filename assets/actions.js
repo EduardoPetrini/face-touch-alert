@@ -27,7 +27,8 @@ const ALERT_SOUNDS = [
 
 const alertSound = document.getElementById('alertSound');
 alertSound.src = ALERT_SOUNDS[getInt('alertSoundIndex') || 0];
-updatePauseButton();
+setInt('isPaused', 0);
+renderPauseButton();
 updateControlTxt();
 
 volDownBtn.title = `Volume: ${Math.round(alertSound.volume * 100)}%`;
@@ -48,20 +49,23 @@ muteBtn.addEventListener('click', () => {
   updateControlTxt();
 });
 
-function updatePauseButton() {
+function renderPauseButton() {
   const isPaused = getInt('isPaused') || 0;
 
   if (isPaused) {
     pauseBtn.title = 'Resume Detection';
     pauseBtn.innerHTML = '<i data-feather="play-circle"></i>';
-    setInt('isPaused', 0);
   } else {
     pauseBtn.title = 'Pause Detection';
     pauseBtn.innerHTML = '<i data-feather="pause-circle"></i>';
-    setInt('isPaused', 1);
   }
   feather.replace();
+}
 
+function updatePauseButton() {
+  const isPaused = getInt('isPaused') || 0;
+  setInt('isPaused', isPaused ? 0 : 1);
+  renderPauseButton();
   updateControlTxt();
 }
 pauseBtn.addEventListener('click', updatePauseButton);
