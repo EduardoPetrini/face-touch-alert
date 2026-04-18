@@ -163,6 +163,13 @@
         margin-bottom: var(--space-4);
       }
 
+      .header-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--space-4);
+      }
+
       .header h1 {
         font-size: var(--font-size-4xl);
         font-weight: 700;
@@ -177,6 +184,45 @@
         color: var(--gray-400);
         font-size: var(--font-size-lg);
         font-weight: 400;
+      }
+
+      .privacy-note {
+        max-width: 760px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: var(--shadow-sm);
+        text-align: left;
+      }
+
+      .privacy-note-text {
+        color: var(--gray-200);
+        font-size: var(--font-size-sm);
+      }
+
+      .privacy-link {
+        flex-shrink: 0;
+        color: var(--primary-300);
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .privacy-link:hover {
+        color: var(--primary-200);
+        text-decoration: underline;
+      }
+
+      .privacy-link:focus-visible {
+        outline: 2px solid var(--primary-300);
+        outline-offset: 3px;
+        border-radius: var(--radius-sm);
       }
 
       .status-card {
@@ -687,6 +733,11 @@
           font-size: var(--font-size-3xl);
         }
 
+        .privacy-note {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
         .controls-container {
           flex-direction: column;
           align-items: center;
@@ -815,8 +866,16 @@
   <body>
     <div class="container">
       <div class="header">
-        <h1>Touch Alert System</h1>
-        <p>Real-time face touch detection and awareness</p>
+        <div class="header-stack">
+          <div>
+            <h1>Touch Alert System</h1>
+            <p>Real-time face touch detection and awareness</p>
+          </div>
+          <div class="privacy-note">
+            <span class="privacy-note-text">Your camera image and alert history stay in your browser. Nothing is collected or uploaded.</span>
+            <a class="privacy-link" href="privacy.html" target="_blank" rel="noopener noreferrer">Read more</a>
+          </div>
+        </div>
       </div>
 
       <div class="status-card">

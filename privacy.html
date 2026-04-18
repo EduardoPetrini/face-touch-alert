@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy and Image Processing</title>
+    <style>
+      :root {
+        --bg: #0f172a;
+        --panel: rgba(15, 23, 42, 0.82);
+        --panel-border: rgba(148, 163, 184, 0.2);
+        --text: #e2e8f0;
+        --muted: #94a3b8;
+        --accent: #7dd3fc;
+        --accent-strong: #38bdf8;
+        --success: #34d399;
+        --shadow: 0 20px 40px rgba(15, 23, 42, 0.35);
+        --radius: 20px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 32%),
+          radial-gradient(circle at bottom right, rgba(52, 211, 153, 0.14), transparent 30%),
+          var(--bg);
+        padding: 32px 20px;
+      }
+
+      .page {
+        max-width: 860px;
+        margin: 0 auto;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 32px;
+        backdrop-filter: blur(12px);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+      }
+
+      .intro {
+        margin: 0 0 28px;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.7;
+      }
+
+      .highlight {
+        display: inline-block;
+        margin-bottom: 18px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(52, 211, 153, 0.14);
+        color: var(--success);
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      h2 {
+        margin: 28px 0 10px;
+        font-size: 1.15rem;
+      }
+
+      p {
+        margin: 0;
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      li + li {
+        margin-top: 8px;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      a:hover {
+        color: var(--accent-strong);
+      }
+
+      .footer {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="card">
+        <div class="highlight">Local processing only</div>
+        <h1>How this software uses your image</h1>
+        <p class="intro">
+          Face Touch Alert uses your camera feed only inside your browser so the detection libraries can estimate face and hand positions and trigger an alert when your hand gets close to your face.
+        </p>
+
+        <h2>What happens to your camera image</h2>
+        <p>
+          Your live camera image is processed locally on your device. The app uses browser-based video processing libraries to analyze motion and landmarks in real time. The software does not upload your camera feed to a server, store photos, or record video files.
+        </p>
+
+        <h2>What data is kept</h2>
+        <p>
+          The app stores only simple alert-related values in your browser, such as alert timestamps, volume choice, and the selected sound. This helps the dashboard and controls remember your recent activity and settings.
+        </p>
+
+        <h2>What data is not collected</h2>
+        <ul>
+          <li>No account data</li>
+          <li>No uploaded camera images or videos</li>
+          <li>No cloud storage of your face or hand data</li>
+          <li>No external analytics about your personal alert history</li>
+        </ul>
+
+        <h2>Your control</h2>
+        <p>
+          You can stop detection at any time by pausing the system or closing the page. Because data stays in the browser, clearing your browser storage removes the locally saved alert history and settings.
+        </p>
+
+        <p class="footer">
+          Our goal is to help people reduce harmful face-touching habits such as constantly touching the nose, mouth, eyes, or other areas of the face. The app is designed to support health, awareness, and overall well-being.
+    </main>
+  </body>
+</html>
