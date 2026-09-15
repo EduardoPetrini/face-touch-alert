@@ -14,6 +14,11 @@ const MIN_ALERT_INTERVAL = 10000;
 
 let cameraStream = null;
 
+// Bumped on every camera start and stop. A getUserMedia promise that resolves
+// after the user has toggled again belongs to a superseded generation, and its
+// stream must be released instead of silently holding the webcam open.
+let cameraGeneration = 0;
+
 // Detection keeps running while the tab is hidden. The clock lives in a worker so
 // background timer throttling cannot starve it, and the supervisor replaces a
 // wedged MediaPipe instance instead of leaving the app silently dead.
@@ -50,10 +55,19 @@ export function reportModelLoadFailure(error) {
 }
 
 export async function setupCamera() {
+  const generation = ++cameraGeneration;
+
   try {
     setLoadingState('Requesting camera access...');
-    cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
-    videoElement.srcObject = cameraStream;
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+    if (generation !== cameraGeneration) {
+      stopTracks(stream);
+      return;
+    }
+
+    cameraStream = stream;
+    videoElement.srcObject = stream;
 
     videoElement.onloadedmetadata = () => {
       videoElement.play().catch(error => {
@@ -63,8 +77,33 @@ export async function setupCamera() {
     };
   } catch (err) {
     console.error('Camera setup error:', err);
+
+    // A denial for a stream we already replaced must not overwrite the newer status.
+    if (generation !== cameraGeneration) {
+      return;
+    }
+
     setErrorState('Camera access denied or unavailable.');
   }
+}
+
+// Releases the webcam outright: the browser's in-use indicator goes dark, rather
+// than implying we are still watching while the system is off.
+export function stopCamera() {
+  cameraGeneration += 1;
+  detectionSupervisor.markCameraStopped();
+
+  if (cameraStream) {
+    stopTracks(cameraStream);
+    cameraStream = null;
+  }
+
+  videoElement.onloadedmetadata = null;
+  videoElement.srcObject = null;
+}
+
+function stopTracks(stream) {
+  stream.getTracks().forEach(track => track.stop());
 }
 
 function getAlertMessage(alertsCount, lastAlertTime, currentDuration, lastDuration) {
@@ -107,15 +146,25 @@ subscribe(state => {
   lastKnownIsPaused = state.isPaused;
 
   // Deferred so the supervisor's status updates never emit from inside this listener.
-  queueMicrotask(() => detectionSupervisor.setPaused(state.isPaused));
+  queueMicrotask(() => {
+    detectionSupervisor.setPaused(state.isPaused);
+
+    // Turning the system off releases the camera; turning it back on reacquires
+    // it. setPaused(false) above cannot restart the loop on its own, because the
+    // supervisor no longer considers a camera ready — markCameraReady does that
+    // once the reacquired stream reports metadata.
+    if (state.isPaused) {
+      stopCamera();
+      return;
+    }
+
+    setupCamera();
+  });
 });
 
 window.addEventListener('beforeunload', () => {
   detectionSupervisor.stop();
-
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-  }
+  stopCamera();
 });
 
 function formatDuration(ms) {

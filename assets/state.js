@@ -52,9 +52,14 @@ export function setLoadingState(message = 'Loading the system...') {
   emitChange();
 }
 
+// Pausing releases the webcam, so the paused message says so: an empty video box
+// otherwise reads as a glitch rather than a deliberate privacy state.
+const PAUSED_MESSAGE = 'Detection paused — camera off';
+const ACTIVE_MESSAGE = 'Live detection active';
+
 export function setReadyState() {
   state.status = state.isPaused ? APP_STATUS.PAUSED : APP_STATUS.ACTIVE;
-  state.statusMessage = state.isPaused ? 'Detection paused' : 'Live detection active';
+  state.statusMessage = state.isPaused ? PAUSED_MESSAGE : ACTIVE_MESSAGE;
   state.errorMessage = '';
   emitChange();
 }
@@ -63,7 +68,7 @@ export function setPausedState(isPaused) {
   state.isPaused = Boolean(isPaused);
   setInt('isPaused', state.isPaused ? 1 : 0);
   state.status = state.isPaused ? APP_STATUS.PAUSED : APP_STATUS.ACTIVE;
-  state.statusMessage = state.isPaused ? 'Detection paused' : 'Live detection active';
+  state.statusMessage = state.isPaused ? PAUSED_MESSAGE : ACTIVE_MESSAGE;
   state.errorMessage = '';
   emitChange();
 }

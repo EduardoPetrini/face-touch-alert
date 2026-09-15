@@ -243,6 +243,14 @@ export function createDetectionSupervisor({
     return startPipeline();
   }
 
+  // The camera is released while the system is off, so the pipeline must not
+  // merely stop: it has to forget that a stream was ever ready. Otherwise
+  // unpausing would restart the loop against a dead video element.
+  function markCameraStopped() {
+    isCameraReady = false;
+    stopPipeline();
+  }
+
   function setPaused(nextIsPaused) {
     if (nextIsPaused) {
       stopPipeline();
@@ -274,5 +282,5 @@ export function createDetectionSupervisor({
     };
   }
 
-  return { attachInstance, markCameraReady, setPaused, halt, stop, getStatus };
+  return { attachInstance, markCameraReady, markCameraStopped, setPaused, halt, stop, getStatus };
 }

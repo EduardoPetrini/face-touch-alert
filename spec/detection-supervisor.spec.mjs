@@ -214,6 +214,41 @@ describe('Detection supervisor', () => {
     });
   });
 
+  describe('camera release', () => {
+    it('stops sending once the camera is released', async () => {
+      const supervisor = build();
+      await startRunning(supervisor);
+      await fire(onlyDelay(0));
+
+      supervisor.markCameraStopped();
+      await fire(allButWatchdog);
+
+      expect(sent.length).toBe(1);
+    });
+
+    it('stays stopped when unpaused until the camera comes back', async () => {
+      // Pausing releases the webcam, so unpausing alone must not resume sending:
+      // there is no live stream to read frames from yet.
+      const supervisor = build();
+      await startRunning(supervisor);
+      await fire(onlyDelay(0));
+
+      paused = true;
+      supervisor.setPaused(true);
+      supervisor.markCameraStopped();
+
+      paused = false;
+      supervisor.setPaused(false);
+      await fire(allButWatchdog);
+      expect(sent.length).toBe(1);
+
+      supervisor.markCameraReady();
+      await fire(onlyDelay(0));
+
+      expect(sent.length).toBe(2);
+    });
+  });
+
   describe('recovery', () => {
     it('rebuilds after repeated frame failures, destroying the old instance before creating the new one', async () => {
       sendBehavior = failOnlyFirstInstance;

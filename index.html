@@ -296,6 +296,10 @@
         height: auto;
         display: block;
         border-radius: var(--radius-xl);
+        /* `auto` keeps the stream's own ratio; the 4/3 fallback only applies once
+           the system is switched off and the camera is released, so the box holds
+           its size instead of collapsing and shifting the controls beside it. */
+        aspect-ratio: auto 4 / 3;
       }
 
       .video-overlay {
