@@ -1,82 +1,65 @@
 import { updateChartFromTimestamps, updateMinuteChartFromTimestamps } from './chart.js';
 import { getTodayStats, pruneAlertHistory } from './analytics.js';
+import { DETECTION_CONFIG } from './detection-config.js';
+import { createDetectionSupervisor } from './detection-supervisor.js';
+import { createHolistic, destroyHolistic } from './holistic-factory.js';
+import { createScheduler } from './scheduler.js';
 import { getArray, getInt, setArray, setInt } from './storage.js';
 import { getState, setErrorState, setLoadingState, setReadyState, subscribe } from './state.js';
 
 const videoElement = document.getElementById('video');
 const alertSound = document.getElementById('alertSound');
 
-const DETECTION_INTERVAL_MS = 600;
 const MIN_ALERT_INTERVAL = 10000;
 
-let detectionTimerId = null;
-let isDetectionLoopRunning = false;
-let isInferenceInFlight = false;
 let cameraStream = null;
-let holisticInstance = null;
 
-export function startDetectionLoop(holistic) {
-  holisticInstance = holistic;
+// Detection keeps running while the tab is hidden. The clock lives in a worker so
+// background timer throttling cannot starve it, and the supervisor replaces a
+// wedged MediaPipe instance instead of leaving the app silently dead.
+const detectionClock = createScheduler({
+  onWorkerError: () =>
+    detectionSupervisor.halt('the detection clock worker failed', 'Detection clock failed. Please reload the page.'),
+});
 
-  if (isDetectionLoopRunning) {
-    return;
-  }
+const detectionSupervisor = createDetectionSupervisor({
+  schedule: detectionClock.schedule,
+  cancel: detectionClock.cancel,
+  createInstance: () => createHolistic({ onResults, timers: detectionClock }),
+  destroyInstance: instance => destroyHolistic(instance, { timers: detectionClock }),
+  sendFrame: instance => instance.send({ image: videoElement }),
+  canSendFrame: () => videoElement.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA,
+  // A slower cadence while hidden is a deliberate battery trade.
+  getIntervalMs: () => (document.hidden ? DETECTION_CONFIG.hiddenIntervalMs : DETECTION_CONFIG.intervalMs),
+  isPaused: () => getState().isPaused,
+  onLoading: setLoadingState,
+  onReady: setReadyState,
+  onHalted: setErrorState,
+});
 
-  isDetectionLoopRunning = true;
-
-  const runDetectionFrame = async () => {
-    if (!isDetectionLoopRunning) {
-      return;
-    }
-
-    if (document.hidden || getState().isPaused || videoElement.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-      detectionTimerId = window.setTimeout(runDetectionFrame, DETECTION_INTERVAL_MS);
-      return;
-    }
-
-    if (isInferenceInFlight) {
-      detectionTimerId = window.setTimeout(runDetectionFrame, DETECTION_INTERVAL_MS);
-      return;
-    }
-
-    isInferenceInFlight = true;
-
-    try {
-      await holistic.send({ image: videoElement });
-    } catch (error) {
-      console.error('Detection loop error:', error);
-      stopDetectionLoop();
-      setErrorState('Detection stopped unexpectedly. Please refresh the page.');
-      return;
-    } finally {
-      isInferenceInFlight = false;
-    }
-
-    detectionTimerId = window.setTimeout(runDetectionFrame, DETECTION_INTERVAL_MS);
-  };
-
-  runDetectionFrame();
+export function attachHolistic(holistic) {
+  detectionSupervisor.attachInstance(holistic);
 }
 
-export function stopDetectionLoop() {
-  isDetectionLoopRunning = false;
-
-  if (detectionTimerId !== null) {
-    window.clearTimeout(detectionTimerId);
-    detectionTimerId = null;
-  }
+export function reportModelLoadFailure(error) {
+  console.error('Detection model failed to load:', error);
+  detectionSupervisor.halt(
+    'the detection model failed to load',
+    'Failed to load the detection model. Check your connection and reload the page.'
+  );
 }
 
-export async function setupCamera(holistic) {
+export async function setupCamera() {
   try {
     setLoadingState('Requesting camera access...');
     cameraStream = await navigator.mediaDevices.getUserMedia({ video: true });
     videoElement.srcObject = cameraStream;
 
     videoElement.onloadedmetadata = () => {
-      videoElement.play();
-      setLoadingState('Loading AI models...');
-      startDetectionLoop(holistic);
+      videoElement.play().catch(error => {
+        console.warn('Video playback failed:', error);
+      });
+      detectionSupervisor.markCameraReady();
     };
   } catch (err) {
     console.error('Camera setup error:', err);
@@ -112,30 +95,23 @@ updateDashboard();
 // Start interval to update "Time Since" every minute
 setInterval(updateDashboard, 60000);
 
+let lastKnownIsPaused = getState().isPaused;
+
+// Reacts to pause transitions only. A status change (loading, ready, error) must
+// never restart detection, or a failure could re-arm the loop under its own banner.
 subscribe(state => {
-  if (state.isPaused) {
-    stopDetectionLoop();
+  if (state.isPaused === lastKnownIsPaused) {
     return;
   }
 
-  if (!document.hidden && holisticInstance) {
-    startDetectionLoop(holisticInstance);
-  }
-});
+  lastKnownIsPaused = state.isPaused;
 
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    stopDetectionLoop();
-    return;
-  }
-
-  if (!getState().isPaused && holisticInstance) {
-    startDetectionLoop(holisticInstance);
-  }
+  // Deferred so the supervisor's status updates never emit from inside this listener.
+  queueMicrotask(() => detectionSupervisor.setPaused(state.isPaused));
 });
 
 window.addEventListener('beforeunload', () => {
-  stopDetectionLoop();
+  detectionSupervisor.stop();
 
   if (cameraStream) {
     cameraStream.getTracks().forEach(track => track.stop());
@@ -188,14 +164,9 @@ function updateDashboard() {
   document.getElementById('todayActiveTime').innerText = formatDuration(todayStats.timeSinceFirstAlert);
 }
 
-let isSystemReady = false;
-
+// Readiness is announced by the supervisor on the first successful frame after
+// every start or rebuild, so this no longer needs a one-shot latch.
 export function onResults(results) {
-  if (!isSystemReady) {
-    isSystemReady = true;
-    setReadyState();
-  }
-
   const isPaused = getState().isPaused;
   if (isPaused) return;
 
