@@ -1,4 +1,4 @@
-import { getInt, setInt } from './storage.js';
+import { getInt, setInt, getString } from './storage.js';
 import { getSoundName } from './sound-names.js';
 import { initializeState, setPausedState, subscribe } from './state.js';
 
@@ -28,7 +28,12 @@ const ALERT_SOUNDS = [
 ];
 
 const alertSound = document.getElementById('alertSound');
-alertSound.src = ALERT_SOUNDS[getInt('alertSoundIndex') || 0];
+const DEFAULT_SOUND_INDEX = ALERT_SOUNDS.findIndex(sound => sound.endsWith('mixkit-confirmation-tone-2867.wav'));
+const storedSoundIndex = getString('alertSoundIndex');
+alertSound.src = ALERT_SOUNDS[storedSoundIndex !== '' ? parseInt(storedSoundIndex, 10) : DEFAULT_SOUND_INDEX];
+
+const storedVolume = getString('alertVolume');
+alertSound.volume = storedVolume !== '' ? parseInt(storedVolume, 10) / 100 : 1;
 initializeState();
 subscribe(renderSystemControls);
 updateControlTxt();
@@ -85,6 +90,7 @@ volDownBtn.addEventListener('click', () => {
   volDownBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
   volUpBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
 
+  setInt('alertVolume', Math.round(newVolume * 100));
   updateControlTxt();
 });
 
@@ -96,6 +102,7 @@ volUpBtn.addEventListener('click', () => {
   volUpBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
   volDownBtn.title = `Volume: ${Math.round(newVolume * 100)}%`;
 
+  setInt('alertVolume', Math.round(newVolume * 100));
   updateControlTxt();
 });
 

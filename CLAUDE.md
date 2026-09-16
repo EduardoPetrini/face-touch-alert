@@ -52,7 +52,7 @@ Alert history is mutated in place via `splice` so the module-level `alertsList` 
 
 ### localStorage keys
 
-`lastAlertTime`, `alertsCount`, `currentDuration`, `lastDuration`, `alertsList` (JSON array of epoch ms), `isPaused`, `alertSoundIndex`.
+`lastAlertTime`, `alertsCount`, `currentDuration`, `lastDuration`, `alertsList` (JSON array of epoch ms), `isPaused`, `alertSoundIndex`, `alertVolume` (0-100 integer percentage).
 
 Note `isPaused` has two readers: `state.js` owns it, but `actions.js` also reads it directly via `getInt`. `initializeState()` force-resets it to `0` on every page load — the app always starts active.
 
