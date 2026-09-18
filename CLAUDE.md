@@ -14,6 +14,8 @@ npm run preview      # serve the built bundle
 npm test             # run all Jasmine specs
 npx jasmine spec/sound-names.spec.mjs   # run a single spec file
 npx jasmine --filter="Chart Data"       # run specs matching a describe/it name
+npm run build:offline                   # offline edition into dist-offline/ (gitignored)
+npm run package:offline                 # ...and zip it as face-touch-alert-offline.zip
 ```
 
 There is no linter, formatter, or type checker configured.
@@ -38,7 +40,7 @@ A no-framework browser app. `index.html` is the single entry point: it inlines a
 
 ### Third-party globals come from CDN script tags, not npm
 
-`Chart` and `feather` are window globals loaded in `index.html`. `window.Holistic` is fetched at runtime by `main.js`, which injects the MediaPipe Holistic script (pinned to `0.5.1675471629`), configures it, wires `onResults`, then calls `setupCamera`. Nothing in `package.json` provides these — tests must stub them.
+`Chart` and `feather` are window globals loaded in `index.html`. `window.Holistic` is fetched at runtime by `main.js`, which injects the MediaPipe Holistic script (pinned to `0.5.1675471629`), configures it, wires `onResults`, then calls `setupCamera`. In the hosted app nothing from npm provides these (the npm copies are only used by the offline build), so tests must stub them.
 
 ### Detection loop
 
@@ -56,6 +58,16 @@ Alert history is mutated in place via `splice` so the module-level `alertsList` 
 
 Note `isPaused` has two readers: `state.js` owns it, but `actions.js` also reads it directly via `getInt`. `initializeState()` force-resets it to `0` on every page load — the app always starts active.
 
+## Offline edition
+
+A second build of the same source that runs from `file://` (unzip, double-click `index.html`, no network). The hosted app is unaffected. Released by `.github/workflows/release-offline.yml` on `v*` tags. `file://` pages can't load ES modules or `fetch` sibling files, so:
+
+- `offline/entry.js` imports the modules **in the same order as the module tags in `index.html`**, with `offline/offline-main.js` in place of `main.js`. Vite bundles it into one unminified classic `app.js` (readable on purpose, since users are invited to edit it).
+- `scripts/offline/transform-html.mjs` rewrites `index.html`: it drops gtag and Google Fonts, and swaps the CDN tags for `vendor/` copies from npm. Every replacement must match exactly once, and the module-tag order is asserted, so **editing a `<script>`/`<link>` tag in `index.html` breaks the offline build (and `spec/offline-html.spec.mjs`) until you update the transform.** That's intended.
+- MediaPipe's wasm, model, and loader files are embedded as base64 scripts (`vendor/mediapipe-data/*.js`). `offline/offline-assets.js` turns them into Blob URLs and returns the `locateFile`. The loader `.js` files must be embedded too: `holistic.js` injects them with `crossorigin="anonymous"`, which always fails on `file://`.
+- `offline-main.js` calls `setHolisticSource()` (in `holistic-factory.js`) before the first build, so the supervisor's rebuilds, which call `createHolistic` with defaults, stay offline too.
+- `@mediapipe/holistic` is an exact devDependency. The build fails if it differs from `HOLISTIC_VERSION`.
+
 ## Testing
 
 Jasmine + jsdom, specs in `spec/*.spec.mjs`. Because modules touch the DOM at import time, each spec must **build the jsdom environment and assign `global.window` / `global.document` / `global.Chart` before `await import(...)`** of the module under test — see `spec/functions.spec.mjs` for the pattern, including its hand-rolled `Chart` stub.
@@ -64,4 +76,4 @@ Prefer testing `analytics.js` directly: it is pure and takes an injectable `now`
 
 ## Known documentation drift
 
-`README.md` predates the current code. It claims no build step is needed, a 300ms `setInterval`, and a `functions.js` layout that has since been split into `state`/`analytics`/`actions`/`ui`. `AGENTS.md` says to use `npx jasmine` "until the script is wired up" — `npm test` works. Trust the source over both, and prefer updating them when you touch these areas.
+`README.md` predates the current code (its Quick Start was rewritten for the offline edition). It still claims a 300ms `setInterval` and a `functions.js` layout that has since been split into `state`/`analytics`/`actions`/`ui`. `AGENTS.md` says to use `npx jasmine` "until the script is wired up" — `npm test` works. Trust the source over both, and prefer updating them when you touch these areas.

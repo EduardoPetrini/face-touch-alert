@@ -37,30 +37,24 @@ The system uses **Google MediaPipe Holistic** machine learning models to provide
 
 ## Quick Start Guide
 
-### Instant Setup (30 seconds)
-1. **Download**: Clone this repository or download as ZIP
-2. **Open**: Double-click `index.html` or drag it into your browser
-3. **Allow Camera**: Click "Allow" when browser requests camera permission
-4. **Position**: Sit 2-3 feet from your camera with good lighting
-5. **Start**: The system loads automatically and begins monitoring immediately
+### Run it offline (no internet, no install)
+1. **Download** [`face-touch-alert-offline.zip`](https://github.com/EduardoPetrini/face-touch-alert/releases/latest/download/face-touch-alert-offline.zip) from the latest release
+2. **Unzip** the whole folder (keep the `vendor` and `assets` folders next to `index.html`)
+3. **Open**: double-click `index.html`, then click "Allow" when the browser asks for the camera
 
-### File Structure
-```
-face-touch-alert/
-├── index.html          # Main application file
-├── assets/
-│   ├── main.js         # MediaPipe initialization
-│   ├── functions.js    # Core detection logic
-│   ├── chart.js        # Chart.js analytics
-│   ├── storage.js      # localStorage utilities
-│   └── favicon.png     # App icon
-└── README.md
-```
+Everything, including the face and hand detection model, is inside the zip, so it works without an internet connection. Works best in Chrome, Edge, or Firefox; Safari may block the camera for pages opened from a file.
 
-### No Server Required
-- Works offline after initial model download
-- No npm install or build process needed
-- Simply open `index.html` in any modern browser
+**Modifying it:** all the app code is in one readable `app.js` inside the zip. Edit it, save, and reload the page. `README-OFFLINE.txt` in the zip points at the most common tweaks.
+
+### Run it from source
+Double-clicking the repository's own `index.html` does **not** work: it loads ES modules, which browsers block on `file://` pages. Use the dev server instead:
+
+```bash
+npm install
+npm run dev              # open the printed http://localhost URL
+npm test                 # run the Jasmine specs
+npm run package:offline  # build face-touch-alert-offline.zip yourself
+```
 
 ## Usage
 

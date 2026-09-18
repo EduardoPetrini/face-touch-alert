@@ -6,6 +6,7 @@ import {
   DESTROY_OUTCOME,
   HOLISTIC_CDN_BASE,
   HOLISTIC_OPTIONS,
+  setHolisticSource,
 } from '../assets/holistic-factory.js';
 
 // Everything is injected — document, host, timers — and no globals are
@@ -201,6 +202,18 @@ describe('Holistic factory', () => {
       expect(instance.resultsListener).toBe(onResults);
     });
 
+    it('passes a custom locateFile through to the instance', async () => {
+      const locateFile = file => `blob:local/${file}`;
+
+      const instance = await createHolistic({
+        onResults: () => {},
+        loader: { load: () => Promise.resolve(createFakeHolisticClass()) },
+        locateFile,
+      });
+
+      expect(instance.config.locateFile).toBe(locateFile);
+    });
+
     it('builds a distinct instance on every call', async () => {
       const loader = { load: () => Promise.resolve(createFakeHolisticClass()) };
 
@@ -304,6 +317,34 @@ describe('Holistic factory', () => {
           timers,
         })
       ).toBeRejectedWith(failure);
+    });
+  });
+
+  describe('setHolisticSource', () => {
+    const fakeLoader = () => ({ load: () => Promise.resolve(createFakeHolisticClass()) });
+
+    // Module-level state: restore the CDN source so random ordering cannot leak it.
+    afterEach(() => setHolisticSource({ baseUrl: HOLISTIC_CDN_BASE }));
+
+    it('makes later default builds use the new locateFile, as rebuilds do', async () => {
+      const locateFile = file => `blob:local/${file}`;
+      setHolisticSource({ baseUrl: 'vendor/mediapipe', locateFile });
+
+      const instance = await createHolistic({ onResults: () => {}, loader: fakeLoader() });
+
+      expect(instance.config.locateFile).toBe(locateFile);
+    });
+
+    it('derives locateFile from the base URL when none is given', async () => {
+      setHolisticSource({ baseUrl: 'vendor/mediapipe' });
+
+      const instance = await createHolistic({ onResults: () => {}, loader: fakeLoader() });
+
+      expect(instance.config.locateFile('holistic.binarypb')).toBe('vendor/mediapipe/holistic.binarypb');
+    });
+
+    it('rejects a missing base URL', () => {
+      expect(() => setHolisticSource({})).toThrowError(TypeError);
     });
   });
 

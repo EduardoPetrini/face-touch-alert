@@ -141,22 +141,40 @@ export function createHolisticLoader({
   return { load };
 }
 
+// Where default builds — including the supervisor's rebuilds, which pass no
+// source of their own — load the script and WASM/model files from.
+let defaultSource = Object.freeze({ baseUrl: HOLISTIC_CDN_BASE, locateFile: null });
+
 // Created on first use rather than at import, so importing this module in a
 // DOM-less environment captures nothing.
 let defaultLoader = null;
 
 function getDefaultLoader() {
   if (defaultLoader === null) {
-    defaultLoader = createHolisticLoader();
+    defaultLoader = createHolisticLoader({ baseUrl: defaultSource.baseUrl });
   }
 
   return defaultLoader;
 }
 
+// Repoints every later default build. The offline edition calls this once at
+// startup, since it cannot reach the CDN; the hosted app never does.
+export function setHolisticSource({ baseUrl, locateFile = null } = {}) {
+  if (typeof baseUrl !== 'string' || baseUrl === '') {
+    throw new TypeError('setHolisticSource requires a baseUrl.');
+  }
+
+  defaultSource = Object.freeze({ baseUrl, locateFile });
+  defaultLoader = null;
+}
+
 export async function createHolistic({
   onResults,
   loader = getDefaultLoader(),
-  baseUrl = HOLISTIC_CDN_BASE,
+  baseUrl = defaultSource.baseUrl,
+  // Where each WASM/model file is fetched from. The offline build swaps this
+  // for blob URLs, since file:// pages cannot fetch sibling files.
+  locateFile = defaultSource.locateFile ?? (file => `${baseUrl}/${file}`),
   options = HOLISTIC_OPTIONS,
   timers = createHostTimers(globalThis),
   initializeTimeoutMs = DETECTION_CONFIG.modelInitTimeoutMs,
@@ -166,7 +184,7 @@ export async function createHolistic({
   }
 
   const Holistic = await loader.load();
-  const instance = new Holistic({ locateFile: file => `${baseUrl}/${file}` });
+  const instance = new Holistic({ locateFile });
 
   instance.setOptions({ ...options });
   instance.onResults(onResults);

@@ -1,0 +1,42 @@
+name: Offline edition
+
+# Builds face-touch-alert-offline.zip: a folder people can unzip and run by
+# double-clicking index.html, with no server and no internet.
+#   - push a tag like v1.2.0  -> the zip is attached to that GitHub Release
+#   - run manually            -> the zip is uploaded as a workflow artifact only
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm test
+      - run: npm run package:offline
+
+      - name: Upload build artifact
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: face-touch-alert-offline
+          path: face-touch-alert-offline.zip
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: face-touch-alert-offline.zip
