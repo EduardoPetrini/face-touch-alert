@@ -23,6 +23,14 @@ jobs:
       - run:
           name: Test
           command: npm test
+      - run:
+          name: Prepare connector smoke-test artifact
+          command: |
+            mkdir -p /tmp/actori-circleci-smoke
+            printf 'Actori CircleCI connector smoke test\n' > /tmp/actori-circleci-smoke/status.txt
+      - store_artifacts:
+          path: /tmp/actori-circleci-smoke
+          destination: actori-connector-smoke
       # No lint script is defined in package.json.
 
 workflows:
