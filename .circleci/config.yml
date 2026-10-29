@@ -1,0 +1,31 @@
+version: 2.1
+
+jobs:
+  build-and-test:
+    docker:
+      # Match the Node 22 runtime used by the existing GitHub Actions workflow.
+      - image: cimg/node:22.22
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-npm-node-22.22-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - save_cache:
+          key: v1-npm-node-22.22-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.npm
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Test
+          command: npm test
+      # No lint script is defined in package.json.
+
+workflows:
+  build-and-test:
+    jobs:
+      - build-and-test
